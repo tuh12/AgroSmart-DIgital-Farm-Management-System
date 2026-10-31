@@ -1,0 +1,20 @@
+{
+  "name": "smart-agro-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "sharp": "^0.33.5"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

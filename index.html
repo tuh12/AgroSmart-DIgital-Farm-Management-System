@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroSmart — Digital Farm Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"/>
+  </head>
+  <body>
+<main id="app">
+      <section class="hero-screen" id="heroScreen">
+        <div class="hero-shade"></div>
+
+        <div class="hero-inner">
+          <div class="topbar-hero">
+                        <div class="brand-badge">AgroSmart</div>
+            <label class="language-switch" for="languageSelect">
+              <span data-i18n="langLabel">Language</span>
+              <select id="languageSelect" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="bn">বাংলা</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="hero-content">
+            <p class="eyebrow" data-i18n="eyebrow">Future-ready farming intelligence</p>
+            <h1 data-i18n="title">AgroSmart-Digital Farm Management System</h1>
+            <p class="lead" data-i18n="lead">
+              A digital farming platform powered by crop intelligence, field planning,
+              pest detection, and smart decision support.
+            </p>
+
+            <div class="cta-row">
+              <button class="get-started" id="getStartedBtn" type="button" data-i18n="getStarted">Get Started</button>
+              <span class="mini-tag" data-i18n="tagline">AI + field monitoring</span>
+            </div>
+          </div>
+
+          <div class="feature-strip">
+            <div><strong data-i18n="featCropAI">Crop Analysis </strong><span data-i18n="featCropAIDesc">Recommendation engine</span></div>
+            <div><strong data-i18n="featPlanner">Field Planner</strong><span data-i18n="featPlannerDesc">Farm operations</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-section" id="infoSection">
+        <div class="info-copy">
+          <p class="section-label" data-i18n="aboutLabel">Project overview</p>
+          <h2 data-i18n="aboutTitle">Built for modern agriculture and future farming</h2>
+          <p data-i18n="aboutText">
+            This project is based on smart farming principles. It combines crop
+            recommendation, field health monitoring, daily task tracking, complaint
+            management, and leaf disease analysis to help farmers work more
+            efficiently and make better decisions.
+          </p>
+        </div>
+
+        <div class="info-panel">
+          <h3 data-i18n="basisTitle">What this system is based on</h3>
+          <ul>
+            <li data-i18n="basis1">Crop knowledge and vegetable growth patterns</li>
+            <li data-i18n="basis2">Soil, weather, and field condition analysis</li>
+            <li data-i18n="basis3">Disease and pest identification from leaf images</li>
+            <li data-i18n="basis4">Daily farm planning, action tracking, and support</li>
+            <li data-i18n="basis5">AI assistance for future smart agriculture innovation</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="showcase-section" id="showcaseSection">
+        <div class="showcase-header">
+          <p class="section-label" data-i18n="galleryLabel">Crop & vegetable vision</p>
+          <h2 data-i18n="galleryTitle">Field inspiration for smarter growth</h2>
+        </div>
+
+        <div class="showcase-grid">
+          <article class="showcase-card">
+            <img src="images.jpg" alt="Rice crop field" />
+            <div class="showcase-meta">
+              <strong data-i18n="card1Title">Rice field</strong>
+              <span data-i18n="card1Text">High-yield crop planning</span>
+            </div>
+          </article>
+
+          <article class="showcase-card">
+            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80" alt="Vegetables in farm" />
+            <div class="showcase-meta">
+              <strong data-i18n="card2Title">Vegetable garden</strong>
+              <span data-i18n="card2Text">Healthy and balanced cultivation</span>
+            </div>
+          </article>
+
+          <article class="showcase-card">
+            <img src="images (1).jpg" alt="Fresh green crop" />
+            <div class="showcase-meta">
+              <strong data-i18n="card3Title">Smart cultivation</strong>
+              <span data-i18n="card3Text">Future-ready to farm intelligence</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="dashboard hidden" id="dashboardScreen">
+        <aside class="sidebar">
+        <nav class="side-nav" aria-label="Dashboard sections">
+            <button class="active" data-section="overview" type="button"><span class="nav-ic">📊</span><span data-i18n="navOverview">Overview</span></button>
+            <button data-section="scanner" type="button"><span class="nav-ic">🩺</span><span data-i18n="navScanner">Leaf Scanner</span></button>
+            <button data-section="recommendation" type="button"><span class="nav-ic">🌱</span><span data-i18n="navCropAI">Crop AI</span></button>
+            <button data-section="library" type="button"><span class="nav-ic">📚</span><span data-i18n="navLibrary">Crop Library</span></button>
+            <button data-section="fields" type="button"><span class="nav-ic">🌾</span><span data-i18n="navFields">Fields</span></button>
+            <button data-section="tasks" type="button"><span class="nav-ic">📅</span><span data-i18n="navTasks">Tasks</span></button>
+            <button data-section="complaints" type="button"><span class="nav-ic">📢</span><span data-i18n="navComplaints">Complaints</span></button>
+            <button data-section="market" type="button"><span class="nav-ic">📈</span><span data-i18n="navMarket">Market Prices</span></button>
+            <button data-section="fertilizer" type="button"><span class="nav-ic">🧪</span><span data-i18n="navFertilizer">Fertilizer Calc</span></button>
+            <button data-section="weather" type="button"><span class="nav-ic">🌦️</span><span data-i18n="navWeather">Weather Alerts</span></button>
+            <button data-section="finance" type="button"><span class="nav-ic">💰</span><span data-i18n="navFinance">Expense/Income</span></button>
+            <button data-section="calendar" type="button"><span class="nav-ic">🗓️</span><span data-i18n="navCalendar">Crop Calendar</span></button>
+            <button data-section="contacts" type="button"><span class="nav-ic">☎️</span><span data-i18n="navContacts">Extension Contact</span></button>
+            <button data-section="subsidy" type="button"><span class="nav-ic">🏛️</span><span data-i18n="navSubsidy">Govt Subsidy</span></button>
+          </nav>
+
+        </aside>
+
+        <section class="workspace">
+          <div class="top-row">
+            <button class="menu-toggle-btn" id="menuToggleBtn" type="button" aria-label="Toggle menu">
+              <span></span><span></span><span></span>
+            </button>
+
+            <header class="topbar">
+              <div>
+                <p id="dateText"></p>
+              </div>
+              <div class="weather-pill" id="weatherPill" data-i18n="weatherLoading">Weather loading</div>
+            </header>
+
+            <div class="profile-area">
+              <div class="profile-chip" id="profileChip">
+                <strong id="profileChipName"></strong>
+                <span id="profileChipSub"></span>
+              </div>
+
+              <div class="profile-actions">
+                <label class="dash-lang" for="dashLanguageSelect">
+                  <span class="dash-lang-ic" aria-hidden="true">🌐</span>
+                  <select id="dashLanguageSelect" aria-label="Select language">
+                    <option value="en">English</option>
+                    <option value="bn">বাংলা</option>
+                  </select>
+                </label>
+                <button class="logout-btn" id="logoutBtn" type="button" data-i18n="logout">Log out</button>
+              </div>
+            </div>
+          </div>
+
+          <section class="view active" data-view="overview">
+            <div class="metric-grid" id="metricGrid"></div>
+            <div class="content-grid">
+              <section class="panel wide">
+                <div class="panel-heading">
+                  <h2 data-i18n="fieldHealth">Field Health</h2>
+                  <span data-i18n="liveFarmSummary">Live farm summary</span>
+                </div>
+                <div class="field-list" id="fieldList"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="alerts">Alerts</h2>
+                  <span data-i18n="today">Today</span>
+                </div>
+                <div class="alert-list" id="alertList"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="recentAI">Recent AI</h2>
+                  <span data-i18n="CropProfile">Crop  profile</span>
+                </div>
+                <div class="recent-list" id="recentList"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="recentScans">Recent Scans</h2>
+                  <span data-i18n="leafHealth">Leaf health</span>
+                </div>
+                <div class="recent-list" id="scanList"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="complaintsHeading">Complaints</h2>
+                  <span data-i18n="supportQueue">Support queue</span>
+                </div>
+                <div class="recent-list" id="complaintSummaryList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="scanner">
+            <div class="split-layout">
+              <form class="panel form-panel" id="scannerForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="leafScannerHeading">Leaf Scanner</h2>
+                  <span data-i18n="imageSymptoms">Image + symptoms</span>
+                </div>
+
+                <div class="input-grid single">
+                  <label><span data-i18n="labelCrop">Crop</span><select name="crop" id="scannerCropSelect" required></select></label>
+                  <label class="leaf-upload">
+                    <div class="upload-icon">📷</div>
+                    <h3 data-i18n="labelLeafImage">Leaf image</h3>
+                    <p data-i18n="uploadLeafHint">Choose a leaf image to preview</p>
+                    <span class="upload-btn" data-i18n="chooseImageBtn">Choose Image</span>
+                    <input name="leafImage" id="leafImageInput" type="file" accept="image/*" required />
+                  </label>
+                  <label><span data-i18n="labelFieldNote">Field note</span><textarea name="notes" rows="4" data-i18n-ph="phFieldNote" placeholder="Example: yellow spots appeared after rain"></textarea></label>
+                </div>
+
+                <div class="symptom-grid">
+                  <label><input type="checkbox" name="symptoms" value="brown spot" /> <span data-i18n="symBrown">Brown spots</span></label>
+                  <label><input type="checkbox" name="symptoms" value="yellow leaf curl" /> <span data-i18n="symYellow">Yellow curl</span></label>
+                  <label><input type="checkbox" name="symptoms" value="white powder mildew" /> <span data-i18n="symWhite">White powder</span></label>
+                  <label><input type="checkbox" name="symptoms" value="holes chewed caterpillar borer" /> <span data-i18n="symHoles">Holes or bite marks</span></label>
+                  <label><input type="checkbox" name="symptoms" value="sticky aphid whitefly tiny insect" /> <span data-i18n="symSticky">Sticky tiny insects</span></label>
+                  <label><input type="checkbox" name="symptoms" value="pale nutrient deficiency chlorosis" /> <span data-i18n="symPale">Pale/yellow plant</span></label>
+                </div>
+
+                <button class="primary-btn" type="submit" data-i18n="scanLeafBtn">Scan Leaf</button>
+              </form>
+
+              <section class="panel result-panel">
+                <div class="image-preview" id="leafPreview" data-i18n="uploadLeafHint">Upload a leaf photo to preview it here.</div>
+                <div id="scannerResult">
+                  <div class="empty-state" data-i18n="scannerEmptyState">Scanner result will show disease/pest guess, treatment, and pesticide guidance.</div>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="recommendation">
+            <div class="split-layout">
+              <form class="panel form-panel" id="recommendForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="cropRecommendationHeading">Crop Recommendation</h2>
+                  <span data-i18n="npkWeatherProfile">NPK + weather profile</span>
+                </div>
+
+                <div class="input-grid">
+                  <label><span data-i18n="labelNitrogen">Nitrogen (N)</span><input name="nitrogen" type="number" value="90" min="0" required /></label>
+                  <label><span data-i18n="labelPhosphorus">Phosphorus (P)</span><input name="phosphorus" type="number" value="42" min="0" required /></label>
+                  <label><span data-i18n="labelPotassium">Potassium (K)</span><input name="potassium" type="number" value="43" min="0" required /></label>
+                  <label><span data-i18n="labelTemperature">Temperature C</span><input name="temperature" type="number" value="22.7" step="0.1" required /></label>
+                  <label><span data-i18n="labelHumidity">Humidity %</span><input name="humidity" type="number" value="82" min="0" max="100" required /></label>
+                  <label><span data-i18n="labelPh">Soil pH</span><input name="ph" type="number" value="6.5" min="0" max="14" step="0.1" required /></label>
+                  <label><span data-i18n="labelRainfall">Rainfall mm</span><input name="rainfall" type="number" value="202" min="0" step="0.1" required /></label>
+                </div>
+
+                <button class="primary-btn" type="submit" data-i18n="analyzeCropBtn">Analyze Crop</button>
+              </form>
+
+              <section class="panel result-panel" id="recommendationResult">
+                <div class="empty-state" data-i18n="recommendEmptyState">Run the model to see the best crop, alternatives, and agronomy advice.</div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="library">
+            <section class="panel">
+              <div class="panel-heading">
+                <h2 data-i18n="cropLibraryHeading">Crop Details Library</h2>
+                <span data-i18n="cropLibrarySub">Crop, vegetable, pest, pesticide</span>
+              </div>
+              <div class="library-toolbar">
+                <input id="cropSearchInput" data-i18n-ph="cropSearchPh" placeholder="Search rice, tomato, aphid, blight..." />
+                <select id="cropTypeSelect">
+                  <option value="" data-i18n="typeAll">All types</option>
+                  <option value="Vegetable" data-i18n="typeVegetables">Vegetables</option>
+                  <option value="Cereal" data-i18n="typeCereals">Cereals</option>
+                  <option value="Fruit" data-i18n="typeFruits">Fruits</option>
+                  <option value="Leafy" data-i18n="typeLeafy">Leafy</option>
+                  <option value="Root" data-i18n="typeRoot">Root</option>
+                </select>
+              </div>
+              <div class="library-grid" id="cropLibraryGrid"></div>
+            </section>
+
+            <section class="panel pest-panel">
+              <div class="panel-heading">
+                <h2 data-i18n="pestGuideHeading">Pest &amp; Pesticide Guide</h2>
+                <span data-i18n="pestGuideSub">Safe field reference</span>
+              </div>
+              <div class="library-grid compact" id="pestGuideGrid"></div>
+            </section>
+          </section>
+
+          <section class="view" data-view="fields">
+            <div class="split-layout">
+              <form class="panel form-panel" id="farmForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="addFieldHeading">Add Field</h2>
+                  <span data-i18n="farmRegistry">Farm registry</span>
+                </div>
+                <div class="input-grid">
+                  <label><span data-i18n="labelFieldName">Field name</span><input name="name" required data-i18n-ph="phFieldName" placeholder="South Block" /></label>
+                  <label><span data-i18n="labelCrop">Crop</span><input name="crop" required data-i18n-ph="phCropRice" placeholder="Rice" /></label>
+                  <label><span data-i18n="labelArea">Area (acre)</span><input name="area" type="number" step="0.1" min="0.1" required placeholder="2.5" /></label>
+                  <label><span data-i18n="labelSoilType">Soil type</span><input name="soilType" required data-i18n-ph="phSoilType" placeholder="Clay loam" /></label>
+                  <label><span data-i18n="labelIrrigation">Irrigation</span><select name="irrigationStatus"><option data-i18n="irrScheduled">Scheduled</option><option data-i18n="irrActive">Active</option><option data-i18n="irrRainfed">Rain-fed</option><option data-i18n="irrPaused">Paused</option></select></label>
+                  <label><span data-i18n="labelHealthPct">Health %</span><input name="health" type="number" min="1" max="100" value="82" /></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="saveFieldBtn">Save Field</button>
+              </form>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="allFieldsHeading">All Fields</h2>
+                  <span id="fieldCount">0 fields</span>
+                </div>
+                <div class="field-list" id="allFieldList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="tasks">
+            <div class="split-layout">
+              <form class="panel form-panel" id="taskForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="addTaskHeading">Add Task</h2>
+                  <span data-i18n="operations">Operations</span>
+                </div>
+                <div class="input-grid single">
+                  <label><span data-i18n="labelTaskTitle">Task title</span><input name="title" required data-i18n-ph="phTaskTitle" placeholder="Inspect irrigation line" /></label>
+                  <label><span data-i18n="labelDueDate">Due date</span><input name="dueDate" type="date" required /></label>
+                  <label><span data-i18n="labelPriority">Priority</span><select name="priority"><option value="medium" data-i18n="priorityMedium">Medium</option><option value="high" data-i18n="priorityHigh">High</option><option value="low" data-i18n="priorityLow">Low</option></select></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="createTaskBtn">Create Task</button>
+              </form>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="taskBoardHeading">Task Board</h2>
+                  <span data-i18n="openWork">Open work</span>
+                </div>
+                <div class="task-list" id="taskList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="complaints">
+            <div class="split-layout">
+              <form class="panel form-panel" id="complaintForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="complaintBoxHeading">Farmer Complaint Box</h2>
+                  <span data-i18n="supportTicket">Support ticket</span>
+                </div>
+                <div class="input-grid single">
+                  <label><span data-i18n="labelSubject">Subject</span><input name="subject" required data-i18n-ph="phSubject" placeholder="Irrigation pump problem" /></label>
+                  <label><span data-i18n="labelCategory">Category</span><select name="category"><option data-i18n="catCropDisease">Crop Disease</option><option data-i18n="catPestAttack">Pest Attack</option><option data-i18n="catIrrigation">Irrigation</option><option data-i18n="catMarketPrice">Market Price</option><option data-i18n="catFertilizer">Fertilizer</option><option data-i18n="catGeneral">General</option></select></label>
+                  <label><span data-i18n="labelCrop">Crop</span><input name="crop" data-i18n-ph="phCropList" placeholder="Rice, Tomato, Potato..." /></label>
+                  <label><span data-i18n="labelPriority">Priority</span><select name="priority"><option value="medium" data-i18n="priorityMedium">Medium</option><option value="high" data-i18n="priorityHigh">High</option><option value="low" data-i18n="priorityLow">Low</option></select></label>
+                  <label><span data-i18n="labelMessage">Message</span><textarea name="message" rows="5" required data-i18n-ph="phComplaintMessage" placeholder="Write farmer complaint details here"></textarea></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="submitComplaintBtn">Submit Complaint</button>
+              </form>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="complaintHistoryHeading">Complaint History</h2>
+                  <span data-i18n="farmerSupport">Farmer support</span>
+                </div>
+                <div class="complaint-list" id="complaintList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="market">
+            <div class="split-layout">
+              <form class="panel form-panel" id="marketForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="marketHeading">Market Price Log</h2>
+                  <span data-i18n="marketSub">Track your own selling price</span>
+                </div>
+                <div class="input-grid single">
+                  <label><span data-i18n="labelCrop">Crop</span><select name="crop" id="marketCropSelect" required></select></label>
+                  <label><span data-i18n="labelPrice">Price</span><input name="price" type="number" min="1" step="0.1" required data-i18n-ph="phPrice" placeholder="1200" /></label>
+                  <label><span data-i18n="labelUnit">Unit</span>
+                    <select name="unit">
+                      <option value="per maund" data-i18n="unitMaund">Per maund</option>
+                      <option value="per kg" data-i18n="unitKg">Per kg</option>
+                      <option value="per quintal" data-i18n="unitQuintal">Per quintal</option>
+                    </select>
+                  </label>
+                  <label><span data-i18n="labelMarketName">Market / Bazar</span><input name="market" data-i18n-ph="phMarketName" placeholder="Savar Bazar" /></label>
+                  <label><span data-i18n="labelDate">Date</span><input name="recordedAt" type="date" /></label>
+                  <label><span data-i18n="labelNote">Note</span><textarea name="notes" rows="3" data-i18n-ph="phMarketNote" placeholder="Optional note, e.g. quality/grade"></textarea></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="logPriceBtn">Log Price</button>
+              </form>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="marketHistoryHeading">Price History</h2>
+                  <span data-i18n="yourEntries">Your logged entries</span>
+                </div>
+                <div class="recent-list" id="marketList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="fertilizer">
+            <div class="split-layout">
+              <form class="panel form-panel" id="fertilizerForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="fertilizerHeading">Fertilizer Calculator</h2>
+                  <span data-i18n="fertilizerSub">Urea / TSP / MoP estimate</span>
+                </div>
+                <div class="input-grid single">
+                  <label><span data-i18n="labelCrop">Crop</span><select name="crop" id="fertilizerCropSelect" required></select></label>
+                  <label><span data-i18n="labelArea">Area (acre)</span><input name="area" type="number" min="0.1" step="0.1" value="1" required /></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="calculateBtn">Calculate</button>
+              </form>
+
+              <section class="panel result-panel" id="fertilizerResult">
+                <div class="empty-state" data-i18n="fertilizerEmptyState">Select a crop and area to see the fertilizer estimate.</div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="weather">
+            <section class="panel">
+              <div class="panel-heading">
+                <h2 data-i18n="weatherHeading">Weather Alerts</h2>
+                <span data-i18n="weatherSub">Short-range advisory</span>
+              </div>
+              <div class="input-grid single">
+                <label><span data-i18n="labelLocation">Location</span>
+                  <div style="display:flex;gap:8px;">
+                    <input id="weatherLocationInput" type="text" placeholder="Dhaka" style="flex:1;height:48px;border:1px solid #d9dfdc;border-radius:12px;padding:0 14px;" />
+                    <button class="primary-btn" id="weatherRefreshBtn" type="button" style="width:auto;padding:0 22px;" data-i18n="refreshBtn">Refresh</button>
+                  </div>
+                </label>
+              </div>
+              <div id="weatherAlertsContent">
+                <div class="empty-state" data-i18n="weatherLoadingState">Loading weather...</div>
+              </div>
+            </section>
+          </section>
+
+          <section class="view" data-view="finance">
+            <div class="split-layout">
+              <form class="panel form-panel" id="financeForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="financeHeading">Farm Expense/Income</h2>
+                  <span data-i18n="financeSub">Track money in and out</span>
+                </div>
+                <div class="input-grid single">
+                  <label><span data-i18n="labelEntryType">Type</span>
+                    <select name="type">
+                      <option value="expense" data-i18n="typeExpense">Expense</option>
+                      <option value="income" data-i18n="typeIncome">Income</option>
+                    </select>
+                  </label>
+                  <label><span data-i18n="labelCategory2">Category</span><input name="category" required data-i18n-ph="phCategory" placeholder="Seed, Fertilizer, Labor, Crop sale..." /></label>
+                  <label><span data-i18n="labelAmount">Amount (Taka)</span><input name="amount" type="number" min="1" step="0.01" required placeholder="500" /></label>
+                  <label><span data-i18n="labelDate">Date</span><input name="date" type="date" /></label>
+                  <label><span data-i18n="labelNote">Note</span><textarea name="notes" rows="3" data-i18n-ph="phFinanceNote" placeholder="Optional note"></textarea></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="addEntryBtn">Add Entry</button>
+              </form>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="financeSummaryHeading">Summary</h2>
+                  <span data-i18n="thisRecord">All entries</span>
+                </div>
+                <div class="metric-grid" id="financeSummaryGrid" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px;"></div>
+                <div class="recent-list" id="financeList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="calendar">
+            <div class="split-layout">
+              <form class="panel form-panel" id="calendarForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="calendarHeading">Crop Calendar</h2>
+                  <span data-i18n="calendarSub">Key milestones by planting date</span>
+                </div>
+                <div class="input-grid single">
+                  <label><span data-i18n="labelCrop">Crop</span><select name="crop" id="calendarCropSelect" required></select></label>
+                  <label><span data-i18n="labelPlantingDate">Planting date</span><input name="plantingDate" type="date" required /></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="generateBtn">Generate Calendar</button>
+              </form>
+
+              <section class="panel result-panel" id="calendarResult">
+                <div class="empty-state" data-i18n="calendarEmptyState">Select a crop and planting date to see the schedule.</div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="contacts">
+            <div class="split-layout">
+              <form class="panel form-panel" id="contactForm">
+                <div class="panel-heading">
+                  <h2 data-i18n="contactHeading">My Extension Contacts</h2>
+                  <span data-i18n="contactSub">Save your local officer's info</span>
+                </div>
+                <div class="input-grid single">
+                  <label><span data-i18n="labelName">Name</span><input name="name" required data-i18n-ph="phContactName" placeholder="Officer name" /></label>
+                  <label><span data-i18n="labelRole">Role / Title</span><input name="role" data-i18n-ph="phContactRole" placeholder="Upazila Agriculture Officer" /></label>
+                  <label><span data-i18n="labelPhone">Phone</span><input name="phone" required data-i18n-ph="phContactPhone" placeholder="01xxxxxxxxx" /></label>
+                  <label><span data-i18n="labelArea">Area</span><input name="area" data-i18n-ph="phContactArea" placeholder="Upazila / Union" /></label>
+                </div>
+                <button class="primary-btn" type="submit" data-i18n="saveContactBtn">Save Contact</button>
+              </form>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <h2 data-i18n="hotlineHeading">National Helplines</h2>
+                  <span data-i18n="verifiedRef">Verified reference</span>
+                </div>
+                <div class="recent-list" id="hotlineList"></div>
+
+                <div class="panel-heading" style="margin-top:22px;">
+                  <h2 data-i18n="myContactsHeading">Your Saved Contacts</h2>
+                </div>
+                <div class="recent-list" id="contactList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" data-view="subsidy">
+            <section class="panel">
+              <div class="panel-heading">
+                <h2 data-i18n="subsidyHeading">Government Subsidy & Schemes</h2>
+                <span data-i18n="subsidySub">General reference — confirm locally</span>
+              </div>
+              <div class="library-grid" id="subsidyGrid"></div>
+            </section>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div class="auth-modal hidden" id="authModal" aria-hidden="true">
+      <div class="auth-backdrop" id="authBackdrop"></div>
+      <section class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <button class="close-btn" id="closeAuthBtn" type="button" aria-label="Close">x</button>
+        <div class="auth-orbit"></div>
+        <p id="authKicker" data-i18n="authKickerLogin">Please enter your details</p>
+        <h2 id="authTitle" data-i18n="authTitleLogin">Welcome Back</h2>
+
+        <form id="authForm">
+          <div class="signup-fields hidden" id="signupFields">
+            <input name="name" data-i18n-ph="phFullName" placeholder="Full name" autocomplete="name" />
+            <input name="phone" data-i18n-ph="phPhone" placeholder="Phone number" autocomplete="tel" />
+            <input name="location" data-i18n-ph="phLocation" placeholder="Farm location" autocomplete="address-level2" />
+          </div>
+
+          <input name="email" type="email" data-i18n-ph="phEmail" placeholder="Email address" autocomplete="email" required />
+          <div class="password-wrap">
+            <input name="password" id="passwordInput" type="password" data-i18n-ph="phPassword" placeholder="Password" autocomplete="current-password" required />
+            <button id="togglePasswordBtn" type="button" aria-label="Show password">o</button>
+          </div>
+          <div class="reset-fields hidden" id="resetFields">
+            <div class="password-wrap">
+              <input name="confirmPassword" id="confirmPasswordInput" type="password" data-i18n-ph="phConfirmPassword" placeholder="Confirm password" autocomplete="new-password" />
+            </div>
+            <p class="auth-help" data-i18n="resetHelp">Enter your email and choose a new password.</p>
+          </div>
+
+          <div class="auth-row" id="authRow">
+            <label class="remember"><input type="checkbox" /> <span data-i18n="rememberMe">Remember me</span></label>
+            <button type="button" class="link-btn" id="forgotPasswordBtn" data-i18n="forgotPassword">Forgot password?</button>
+          </div>
+
+          <button class="sign-btn" id="authSubmitBtn" type="submit" data-i18n="signInBtn">Sign In</button>
+          <p class="auth-error" id="authError"></p>
+        </form>
+
+        <div class="social-row" id="socialRow" aria-label="Social sign in options">
+          <button type="button">G</button>
+          <button type="button">f</button>
+          <button type="button">a</button>
+        </div>
+
+        <p class="switch-auth">
+          <span id="switchText" data-i18n="noAccount">Don't have an account?</span>
+          <button type="button" id="switchAuthBtn" data-i18n="signUpLink">Sign up</button>
+        </p>
+      </section>
+    </div>
+        <script src="app.js"></script>
+  </body>
+</html>
