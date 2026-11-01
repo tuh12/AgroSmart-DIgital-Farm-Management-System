@@ -3840,3 +3840,94 @@ async function api(path, options = {}) {
 
 setupEventListeners();
 boot();
+// =========================================================
+// LANGUAGE SWITCH FIX
+// Problem: kaj korar por jei result/list ashe (scanner, crop AI, fertilizer,
+// calendar, weather, market, finance, contacts, subsidy), language button
+// chaple oigulo purono bhasha-tei thake.
+// Karon: applyLanguage() shudhu dashboard re-render kore, baki result na.
+//
+// Fix: app.js-er EKDOM SHESHE, ei duita line-er THIK AGE paste koro:
+//     setupEventListeners();
+//     boot();
+// =========================================================
+
+(function enableLiveLanguageSwitch() {
+  const last = {}; // function name -> last arguments
+
+  // Kono render function call hole tar arguments mone rakho
+  function remember(fnName) {
+    const original = globalThis[fnName];
+    if (typeof original !== "function") return;
+
+    globalThis[fnName] = function (...args) {
+      last[fnName] = args;
+      return original.apply(this, args);
+    };
+  }
+
+  [
+    "renderScannerResult",
+    "renderRecommendation",
+    "renderFertilizerResult",
+    "renderCalendarResult",
+    "renderWeather",
+    "renderMarketList",
+    "renderFinance",
+    "renderContactList"
+  ].forEach(remember);
+
+  // Notun scan shuru hole purono result bhule jao
+  const originalShowScannerMessage = globalThis.showScannerMessage;
+  if (typeof originalShowScannerMessage === "function") {
+    globalThis.showScannerMessage = function (...args) {
+      delete last.renderScannerResult;
+      return originalShowScannerMessage.apply(this, args);
+    };
+  }
+
+  // Language change hole mone rakha result abar nutun bhashay draw koro
+  const originalApplyLanguage = globalThis.applyLanguage;
+
+  globalThis.applyLanguage = function (lang) {
+    originalApplyLanguage.call(this, lang);
+
+    const replay = (fnName, args) => {
+      try {
+        globalThis[fnName](...args);
+      } catch (error) {
+        console.warn("Language refresh failed for", fnName, error);
+      }
+    };
+
+    // Scanner, Crop AI, Fertilizer, Weather, Market, Finance, Contacts
+    [
+      "renderScannerResult",
+      "renderRecommendation",
+      "renderFertilizerResult",
+      "renderWeather",
+      "renderMarketList",
+      "renderFinance",
+      "renderContactList"
+    ].forEach((fnName) => {
+      if (last[fnName]) replay(fnName, last[fnName]);
+    });
+
+    // Calendar: milestone-er title bhasha onujayi toiri hoy, tai notun kore generate koro
+    if (last.renderCalendarResult) {
+      const [cropName, milestones] = last.renderCalendarResult;
+      const plantingDate = milestones?.[0]?.date;
+
+      if (plantingDate) {
+        replay("renderCalendarResult", [
+          cropName,
+          generateCropCalendar(cropName, plantingDate)
+        ]);
+      }
+    }
+
+    // Static section gulo
+    if (typeof renderHotlineList === "function") renderHotlineList();
+    if (typeof renderSubsidy === "function") renderSubsidy();
+  };
+})();
