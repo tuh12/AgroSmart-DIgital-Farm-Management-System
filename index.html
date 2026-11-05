@@ -15,7 +15,7 @@
 
         <div class="hero-inner">
           <div class="topbar-hero">
-            <img src="ChatGPT Image Aug 25, 2026, 11_33_24 PM.png" alt="logo">
+            <img src="logo.png" alt="logo">
             <div class="brand-badge">AgroSmart</div>
             <label class="language-switch" for="languageSelect">
               <span data-i18n="langLabel">Language</span>
@@ -109,6 +109,7 @@
         <nav class="side-nav" aria-label="Dashboard sections">
             <button class="active" data-section="overview" type="button"><span class="nav-ic">📊</span><span data-i18n="navOverview">Overview</span></button>
             <button data-section="scanner" type="button"><span class="nav-ic">🩺</span><span data-i18n="navScanner">Leaf Scanner</span></button>
+            <button data-section="history" type="button"><span class="nav-ic">🗂️</span><span data-i18n="navScanHistory">Scan History</span></button>
             <button data-section="recommendation" type="button"><span class="nav-ic">🌱</span><span data-i18n="navCropAI">Crop AI</span></button>
             <button data-section="library" type="button"><span class="nav-ic">📚</span><span data-i18n="navLibrary">Crop Library</span></button>
             <button data-section="fields" type="button"><span class="nav-ic">🌾</span><span data-i18n="navFields">Fields</span></button>
@@ -217,7 +218,7 @@
                     <h3 data-i18n="labelLeafImage">Leaf image</h3>
                     <p data-i18n="uploadLeafHint">Choose a leaf image to preview</p>
                     <span class="upload-btn" data-i18n="chooseImageBtn">Choose Image</span>
-                    <input name="leafImage" id="leafImageInput" type="file" accept="image/*" required />
+                    <input name="leafImage" id="leafImageInput" type="file" accept="image/*" />
                   </label>
                   <label><span data-i18n="labelFieldNote">Field note</span><textarea name="notes" rows="4" data-i18n-ph="phFieldNote" placeholder="Example: yellow spots appeared after rain"></textarea></label>
                 </div>
@@ -241,6 +242,22 @@
                 </div>
               </section>
             </div>
+
+          </section>
+
+          <section class="view" data-view="history">
+            <section class="panel scan-history-panel">
+              <div class="panel-heading">
+                <h2 data-i18n="scanHistoryHeading">Scan History</h2>
+                <span id="scanHistoryCount">0</span>
+              </div>
+              <div class="scan-stats" id="scanStatsGrid"></div>
+              <div class="scan-history-grid" id="scanHistoryList"></div>
+            </section>
+          </section>
+
+          <section class="view" data-view="report">
+            <div class="report-page" id="scanReport"></div>
           </section>
 
           <section class="view" data-view="recommendation">
@@ -311,7 +328,7 @@
                   <label><span data-i18n="labelCrop">Crop</span><input name="crop" required data-i18n-ph="phCropRice" placeholder="Rice" /></label>
                   <label><span data-i18n="labelArea">Area (acre)</span><input name="area" type="number" step="0.1" min="0.1" required placeholder="2.5" /></label>
                   <label><span data-i18n="labelSoilType">Soil type</span><input name="soilType" required data-i18n-ph="phSoilType" placeholder="Clay loam" /></label>
-                  <label><span data-i18n="labelIrrigation">Irrigation</span><select name="irrigationStatus"><option data-i18n="irrScheduled">Scheduled</option><option data-i18n="irrActive">Active</option><option data-i18n="irrRainfed">Rain-fed</option><option data-i18n="irrPaused">Paused</option></select></label>
+                  <label><span data-i18n="labelIrrigation">Irrigation</span><select name="irrigationStatus"><option value="Scheduled" data-i18n="irrScheduled">Scheduled</option><option value="Active" data-i18n="irrActive">Active</option><option value="Rain-fed" data-i18n="irrRainfed">Rain-fed</option><option value="Paused" data-i18n="irrPaused">Paused</option></select></label>
                   <label><span data-i18n="labelHealthPct">Health %</span><input name="health" type="number" min="1" max="100" value="82" /></label>
                 </div>
                 <button class="primary-btn" type="submit" data-i18n="saveFieldBtn">Save Field</button>
@@ -361,7 +378,7 @@
                 </div>
                 <div class="input-grid single">
                   <label><span data-i18n="labelSubject">Subject</span><input name="subject" required data-i18n-ph="phSubject" placeholder="Irrigation pump problem" /></label>
-                  <label><span data-i18n="labelCategory">Category</span><select name="category"><option data-i18n="catCropDisease">Crop Disease</option><option data-i18n="catPestAttack">Pest Attack</option><option data-i18n="catIrrigation">Irrigation</option><option data-i18n="catMarketPrice">Market Price</option><option data-i18n="catFertilizer">Fertilizer</option><option data-i18n="catGeneral">General</option></select></label>
+                  <label><span data-i18n="labelCategory">Category</span><select name="category"><option value="Crop Disease" data-i18n="catCropDisease">Crop Disease</option><option value="Pest Attack" data-i18n="catPestAttack">Pest Attack</option><option value="Irrigation" data-i18n="catIrrigation">Irrigation</option><option value="Market Price" data-i18n="catMarketPrice">Market Price</option><option value="Fertilizer" data-i18n="catFertilizer">Fertilizer</option><option value="General" data-i18n="catGeneral">General</option></select></label>
                   <label><span data-i18n="labelCrop">Crop</span><input name="crop" data-i18n-ph="phCropList" placeholder="Rice, Tomato, Potato..." /></label>
                   <label><span data-i18n="labelPriority">Priority</span><select name="priority"><option value="medium" data-i18n="priorityMedium">Medium</option><option value="high" data-i18n="priorityHigh">High</option><option value="low" data-i18n="priorityLow">Low</option></select></label>
                   <label><span data-i18n="labelMessage">Message</span><textarea name="message" rows="5" required data-i18n-ph="phComplaintMessage" placeholder="Write farmer complaint details here"></textarea></label>
@@ -568,7 +585,7 @@
           <input name="email" type="email" data-i18n-ph="phEmail" placeholder="Email address" autocomplete="email" required />
           <div class="password-wrap">
             <input name="password" id="passwordInput" type="password" data-i18n-ph="phPassword" placeholder="Password" autocomplete="current-password" required />
-            <button id="togglePasswordBtn" type="button" aria-label="Show password">o</button>
+            <button id="togglePasswordBtn" type="button" aria-label="Show password">👁</button>
           </div>
           <div class="reset-fields hidden" id="resetFields">
             <div class="password-wrap">
@@ -585,12 +602,6 @@
           <button class="sign-btn" id="authSubmitBtn" type="submit" data-i18n="signInBtn">Sign In</button>
           <p class="auth-error" id="authError"></p>
         </form>
-
-        <div class="social-row" id="socialRow" aria-label="Social sign in options">
-          <button type="button">G</button>
-          <button type="button">f</button>
-          <button type="button">a</button>
-        </div>
 
         <p class="switch-auth">
           <span id="switchText" data-i18n="noAccount">Don't have an account?</span>

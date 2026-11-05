@@ -1,5 +1,7 @@
 const path = require("path");
 const crypto = require("crypto");
+const fs = require("fs");
+const sharp = require("sharp");
 
 require("dotenv").config({ quiet: true });
 
@@ -15,7 +17,7 @@ const {
   getFertilizerDose
 } = require("./cropKnowledge");
 const { analyzeLeaf } = require("./leafScanner");
-const { analyzePaddyImage, isRiceCrop } = require("./paddyModel");
+const { analyzePaddyImage, isRiceCrop, warmUp: warmUpPaddy } = require("./paddyModel");
 const { initializeDatabase, readData, writeData } = require("./store");
 
 const app = express();
@@ -34,14 +36,46 @@ app.use(express.json({ limit: "15mb" }));
 // Serve ONLY the front-end files. Previously express.static(__dirname) exposed
 // the whole project folder (data/smart-agro.sqlite, auth.js, store.js ...).
 const PUBLIC_FILES = new Set(["index.html", "app.js", "styles.css"]);
+const PUBLIC_IMAGE = /^(images|logo)[A-Za-z0-9 _().-]*\.(jpg|jpeg|png|webp|svg)$/i;
 app.use((req, res, next) => {
   if (req.method !== "GET" && req.method !== "HEAD") return next();
-  const name = decodeURIComponent(req.path).replace(/^\/+/, "");
-  if (PUBLIC_FILES.has(name) || /^images[^/]*\.(jpg|jpeg|png|webp|svg)$/i.test(name) || /^logo[^/]*\.(png|jpg|svg)$/i.test(name)) {
-    return res.sendFile(path.join(__dirname, name));
+  let name;
+  try {
+    name = decodeURIComponent(req.path).replace(/^\/+/, "");
+  } catch (error) {
+    return next(); // malformed %-encoding must not crash the request
+  }
+  if (PUBLIC_FILES.has(name) || (PUBLIC_IMAGE.test(name) && !name.includes(".."))) {
+    return res.sendFile(name, { root: __dirname }, (err) => {
+      if (err && !res.headersSent) next();
+    });
   }
   return next();
 });
+
+const SCAN_IMG_DIR = path.join(__dirname, "data", "scan-images");
+fs.mkdirSync(SCAN_IMG_DIR, { recursive: true });
+app.use("/scan-images", express.static(SCAN_IMG_DIR, { index: false, dotfiles: "deny", maxAge: "7d" }));
+
+async function saveScanThumb(scanId, imageBase64) {
+  if (!imageBase64) return null;
+  try {
+    await sharp(Buffer.from(imageBase64, "base64"))
+      .rotate()
+      .resize(480, 480, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 75 })
+      .toFile(path.join(SCAN_IMG_DIR, `${scanId}.jpg`));
+    return `/scan-images/${scanId}.jpg`;
+  } catch (error) {
+    console.warn("Could not save scan thumbnail:", error.message);
+    return null;
+  }
+}
+
+// Simple in-memory brute-force protection for login.
+const loginAttempts = new Map();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_FAILS = 10;
 
 function createId(prefix) {
   return `${prefix}_${crypto.randomUUID()}`;
@@ -325,6 +359,11 @@ app.post("/api/auth/signup", (req, res) => {
 
   const normalizedEmail = String(email).trim().toLowerCase();
   const normalizedPhone = String(phone).trim();
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    return res.status(400).json({ message: "Please enter a valid email address" });
+  }
+
   const data = readData();
 
   if (data.users.some((user) => user.email === normalizedEmail || user.phone === normalizedPhone)) {
@@ -500,11 +539,29 @@ app.post("/api/auth/login", (req, res) => {
     (item) => item.email === normalizedEmail
   );
 
+  const rateKey = `${req.ip}|${normalizedEmail}`;
+  let attempt = loginAttempts.get(rateKey);
+  if (attempt && Date.now() - attempt.first > LOGIN_WINDOW_MS) {
+    loginAttempts.delete(rateKey);
+    attempt = null;
+  }
+  if (attempt && attempt.count >= LOGIN_MAX_FAILS) {
+    return res.status(429).json({
+      message: "Too many failed attempts. Please try again in 15 minutes."
+    });
+  }
+
   if (!user || !verifyPassword(password, user.passwordHash)) {
+    loginAttempts.set(rateKey, {
+      first: attempt ? attempt.first : Date.now(),
+      count: (attempt ? attempt.count : 0) + 1
+    });
     return res.status(401).json({
       message: "Invalid email or password"
     });
   }
+
+  loginAttempts.delete(rateKey);
 
   const token = createToken({
     id: user.id,
@@ -940,7 +997,11 @@ app.patch("/api/tasks/:taskId", authMiddleware, (req, res) => {
     return res.status(404).json({ message: "Task not found" });
   }
 
-  task.status = req.body?.status || task.status;
+  const nextStatus = req.body?.status;
+  if (nextStatus && !["open", "done"].includes(nextStatus)) {
+    return res.status(400).json({ message: "Status must be open or done" });
+  }
+  task.status = nextStatus || task.status;
   writeData(data);
 
   return res.json({ task });
@@ -994,7 +1055,7 @@ app.post("/api/complaints", authMiddleware, (req, res) => {
 });
 app.post("/api/scanner/leaf", authMiddleware, async (req, res) => {
   const { crop = "" } = req.body || {};
-  let imageBase64 = req.body?.imageBase64 || "";
+  let imageBase64 = typeof req.body?.imageBase64 === "string" ? req.body.imageBase64 : "";
   if (imageBase64.includes(",")) imageBase64 = imageBase64.split(",")[1];
 
   let result;
@@ -1007,21 +1068,32 @@ app.post("/api/scanner/leaf", authMiddleware, async (req, res) => {
   }
   if (!result) result = analyzeLeaf(req.body || {});
 
-  const data = readData();
+  const scanId = createId("scan");
+  const imageUrl = await saveScanThumb(scanId, imageBase64);
+
+  const data = readData(); // read AFTER the await so we never overwrite newer data
   data.scans.push({
-    id: createId("scan"),
+    id: scanId,
     userId: req.auth.id,
     crop: result.crop,
     imageName: req.body?.imageName || "",
+    imageUrl,
     symptoms: Array.isArray(req.body?.symptoms) ? req.body.symptoms : [],
     notes: req.body?.notes || "",
     issue: result.issue,
     confidence: result.confidence,
     severity: result.severity,
+    lowConfidence: Boolean(result.lowConfidence),
+    source: result.source || "keyword-rules",
+    predictions: result.predictions || [],
+    treatment: result.treatment || [],
+    prevention: result.prevention || "",
+    disclaimer: result.disclaimer || "",
+    cropRisks: result.cropRisks || null,
     createdAt: new Date().toISOString()
   });
   writeData(data);
-  res.json({ result });
+  res.json({ result: { ...result, imageUrl } });
 });
 // ============================================================
 // DELETE ENDPOINTS
@@ -1050,7 +1122,23 @@ function makeDeleteRoute(collection, label) {
   };
 }
 
-app.delete("/api/scans/:id", authMiddleware, makeDeleteRoute("scans", "Scan"));
+app.get("/api/scans", authMiddleware, (req, res) => {
+  const scans = readData()
+    .scans.filter((s) => s.userId === req.auth.id)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json({ scans });
+});
+
+app.delete("/api/scans/:id", authMiddleware, (req, res) => {
+  const data = readData();
+  const scan = data.scans.find((s) => s.id === req.params.id && s.userId === req.auth.id);
+  if (!scan) return res.status(404).json({ message: "Scan not found" });
+
+  data.scans = data.scans.filter((s) => s !== scan);
+  writeData(data);
+  fs.unlink(path.join(SCAN_IMG_DIR, `${scan.id}.jpg`), () => {});
+  res.json({ message: "Scan deleted" });
+});
 app.delete("/api/farms/:id", authMiddleware, makeDeleteRoute("farms", "Field"));
 app.delete(
   "/api/recommendations/:id",
@@ -1082,13 +1170,33 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
+// JSON error handler (oversized bodies, bad JSON, unexpected errors).
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error(err);
+  res.status(status).json({
+    message:
+      status === 413 ? "The uploaded image is too large."
+      : status >= 500 ? "Server error. Please try again."
+      : err.message || "Bad request"
+  });
+});
+
 async function warmUp() {
-  const url = process.env.PADDY_ML_URL || "http://127.0.0.1:5001";
   try {
+    // Prefer preloading the local TF.js model; only ping the Python server
+    // if no local model is installed.
+    const preload = warmUpPaddy();
+    if (preload) {
+      await preload;
+      return;
+    }
+    const url = process.env.PADDY_ML_URL || "http://127.0.0.1:5001";
     const res = await fetch(`${url}/health`, { signal: AbortSignal.timeout(5000) });
     console.log("Paddy ML server reachable:", res.ok);
   } catch (error) {
-    console.warn("Paddy ML server not reachable yet:", error.message);
+    console.warn("Paddy model/server not ready yet:", error.message);
   }
 }
 
@@ -1096,4 +1204,3 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   warmUp();
 });
-

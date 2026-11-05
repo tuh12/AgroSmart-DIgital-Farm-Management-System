@@ -153,11 +153,12 @@ async function analyzePaddyImage({ imageBase64 }) {
     throw new Error("Paddy ML returned no predictions.");
   }
 
+  // Decide ONCE whether the whole list is 0-1 probabilities or 0-100 percentages.
+  // (Per-item checks turned a 0.4% guess into 40%.)
+  const scale = payload.predictions.every((p) => Number(p.confidence) <= 1) ? 100 : 1;
   const prediction = payload.predictions[0];
   const label = String(prediction.label || "").trim().toLowerCase();
-  let confidence = Number(prediction.confidence);
-  // Accept both 0-1 probabilities and 0-100 percentages.
-  if (Number.isFinite(confidence) && confidence <= 1) confidence *= 100;
+  const confidence = Number(prediction.confidence) * scale;
 
   if (!label || !Number.isFinite(confidence)) {
     throw new Error("Paddy ML API returned an invalid prediction.");
@@ -173,13 +174,11 @@ async function analyzePaddyImage({ imageBase64 }) {
 
   const isHealthy = label === "normal";
 
-  let severity = "medium";
-
-  if (isHealthy || confidence < 60) {
-    severity = "low";
-  } else if (confidence >= 85) {
-    severity = "high";
-  }
+  // Severity describes the DISEASE, not how sure the model is.
+  const HIGH_SEVERITY = new Set([
+    "blast", "tungro", "bacterial_leaf_blight", "bacterial_panicle_blight"
+  ]);
+  const severity = isHealthy ? "None" : HIGH_SEVERITY.has(label) ? "High" : "Medium";
 
   return {
     crop: "Rice",
@@ -203,9 +202,7 @@ async function analyzePaddyImage({ imageBase64 }) {
         issue: itemInfo
           ? itemInfo.issue
           : itemLabel.replace(/_/g, " "),
-        confidence: Number(item.confidence) <= 1
-          ? Number(item.confidence) * 100
-          : Number(item.confidence)
+        confidence: Number(item.confidence) * scale
       };
     })
   };

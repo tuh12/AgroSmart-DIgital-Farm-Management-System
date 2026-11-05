@@ -10,6 +10,7 @@ const state = {
   authMode: "login",
   crops: [],
   pests: [],
+  scanHistory: [],
   lang: "en"
 };
 
@@ -54,6 +55,7 @@ const translations = {
     sideManagement: "Management",
     navOverview: "Overview",
     navScanner: "Leaf Scanner",
+    navScanHistory: "Scan History",
     navCropAI: "Crop Analysis",
     navLibrary: "Crop Library",
     navFields: "Fields",
@@ -328,7 +330,66 @@ const translations = {
 
     categoryLabel: "Category",
     priorityLabel: "Priority",
-    statusLabel: "Status"
+    statusLabel: "Status",
+    severityLabel: "Severity:",
+    scanHistoryHeading: "Scan History",
+    noScanHistoryYet: "No scans yet. Your scanned leaves will appear here.",
+    modelResultLabel: "AI model",
+    keywordResultLabel: "Keyword guess",
+    lowConfLabel: "Low confidence",
+    matchLabel: "match",
+    symptomsChosenLabel: "Symptoms selected",
+    noteLabel: "Note",
+    otherPossLabel: "Other possibilities",
+    reportTitle: "Leaf Scan Report",
+    backToHistory: "← Back to history",
+    printReportBtn: "Print / Save PDF",
+    reportIdLabel: "Report ID",
+    scannedOnLabel: "Scanned on",
+    photoLabel: "Scanned photo",
+    openReportLink: "View full report",
+    accuracyHeading: "Accuracy & reliability indicators",
+    confScoreLabel: "Confidence score",
+    reliabilityLabel: "Reliability level",
+    bandHigh: "High",
+    bandMid: "Medium",
+    bandLow: "Low",
+    bandScaleNote: "Bands: below 60% = Low, 60–84% = Medium, 85% and above = High.",
+    sourceLabel: "Result source",
+    sourceModelDesc: "AI image model (MobileNetV2, 224×224 px, 10 rice conditions) analysed your photo.",
+    sourceKeywordDesc: "Keyword rules matched your crop, symptoms and note. The photo itself was NOT analysed by AI.",
+    marginLabel: "Gap to 2nd guess",
+    pointsWord: "pts",
+    marginClear: "Clear winner",
+    marginMod: "Moderate",
+    marginNarrow: "Narrow — could be confused with the 2nd guess",
+    valAccLabel: "Model validation accuracy",
+    notRecorded: "Not recorded",
+    notApplicable: "Not applicable",
+    inputsLabel: "Inputs used",
+    inPhoto: "Photo",
+    inSymptoms: "symptoms",
+    inNote: "note",
+    interpHigh: "The result is strongly supported. Still confirm before using any chemical.",
+    interpMid: "The result is plausible but not certain. Check the other possibilities and confirm locally.",
+    interpLow: "The result is uncertain. Treat it only as a hint and retake the photo.",
+    kwHeuristicNote: "Keyword confidence is a rough estimate that rises with each matching keyword. It is not a measured accuracy.",
+    confDisclaimerNote: "Confidence is the model's own certainty for this photo, not a guaranteed accuracy rate.",
+    possibilitiesHeading: "Ranked possibilities",
+    noAlternatives: "No alternative guesses were recorded for this scan.",
+    inputsHeading: "Your inputs",
+    noInputsNote: "No extra symptoms or note were added.",
+    cropRisksHeading: "Common risks for this crop",
+    nextStepsHeading: "Recommended next steps",
+    nsRetake: "Retake the photo in daylight with one leaf filling the frame, then scan again.",
+    nsConfirm: "Confirm the diagnosis with your local agriculture officer (Krishi Call Center 16123) before using any chemical.",
+    nsMonitor: "Re-scan the same plant after 3–5 days to see whether symptoms are spreading.",
+    nsTreat: "Start the listed treatment steps and remove or isolate badly affected leaves.",
+    statTotal: "Total scans",
+    statAvg: "Average confidence",
+    statModel: "AI-model scans",
+    statLow: "Low-confidence scans",
+    statTop: "Most frequent issue"
   },
 
   bn: {
@@ -366,6 +427,7 @@ const translations = {
     sideManagement: "ব্যবস্থাপনা",
     navOverview: "সারসংক্ষেপ",
     navScanner: "পাতা স্ক্যানার",
+    navScanHistory: "স্ক্যান ইতিহাস",
     navCropAI: "ফসল বিশ্লেষণ",
     navLibrary: "ফসল লাইব্রেরি",
     navFields: "জমি",
@@ -640,7 +702,66 @@ const translations = {
 
     categoryLabel: "বিভাগ",
     priorityLabel: "অগ্রাধিকার",
-    statusLabel: "অবস্থা"
+    statusLabel: "অবস্থা",
+    severityLabel: "ঝুঁকি:",
+    scanHistoryHeading: "স্ক্যান ইতিহাস",
+    noScanHistoryYet: "এখনও কোনো স্ক্যান নেই। স্ক্যান করা পাতাগুলো এখানে দেখা যাবে।",
+    modelResultLabel: "AI মডেল",
+    keywordResultLabel: "লক্ষণভিত্তিক অনুমান",
+    lowConfLabel: "কম নির্ভরযোগ্যতা",
+    matchLabel: "মিল",
+    symptomsChosenLabel: "নির্বাচিত লক্ষণ",
+    noteLabel: "নোট",
+    otherPossLabel: "অন্যান্য সম্ভাবনা",
+    reportTitle: "পাতা স্ক্যান রিপোর্ট",
+    backToHistory: "← ইতিহাসে ফিরুন",
+    printReportBtn: "প্রিন্ট / PDF সংরক্ষণ",
+    reportIdLabel: "রিপোর্ট আইডি",
+    scannedOnLabel: "স্ক্যানের সময়",
+    photoLabel: "স্ক্যান করা ছবি",
+    openReportLink: "পূর্ণ রিপোর্ট দেখুন",
+    accuracyHeading: "নির্ভুলতা ও নির্ভরযোগ্যতার নির্দেশক",
+    confScoreLabel: "নির্ভরযোগ্যতার স্কোর",
+    reliabilityLabel: "নির্ভরযোগ্যতার স্তর",
+    bandHigh: "বেশি",
+    bandMid: "মাঝারি",
+    bandLow: "কম",
+    bandScaleNote: "স্তর: ৬০%-এর নিচে = কম, ৬০–৮৪% = মাঝারি, ৮৫% ও তার বেশি = বেশি।",
+    sourceLabel: "ফলাফলের উৎস",
+    sourceModelDesc: "AI ছবি-মডেল (MobileNetV2, ২২৪×২২৪ পিক্সেল, ১০টি ধানের অবস্থা) আপনার ছবি বিশ্লেষণ করেছে।",
+    sourceKeywordDesc: "ফসল, লক্ষণ ও নোটের কীওয়ার্ড মিলিয়ে অনুমান করা হয়েছে। ছবিটি AI দিয়ে বিশ্লেষণ করা হয়নি।",
+    marginLabel: "দ্বিতীয় অনুমান থেকে ব্যবধান",
+    pointsWord: "পয়েন্ট",
+    marginClear: "স্পষ্ট ফলাফল",
+    marginMod: "মাঝারি",
+    marginNarrow: "সংকীর্ণ — দ্বিতীয় অনুমানের সাথে গুলিয়ে যেতে পারে",
+    valAccLabel: "মডেলের যাচাইকৃত নির্ভুলতা",
+    notRecorded: "রেকর্ড করা নেই",
+    notApplicable: "প্রযোজ্য নয়",
+    inputsLabel: "ব্যবহৃত তথ্য",
+    inPhoto: "ছবি",
+    inSymptoms: "টি লক্ষণ",
+    inNote: "নোট",
+    interpHigh: "ফলাফলটি যথেষ্ট নির্ভরযোগ্য। তবুও রাসায়নিক ব্যবহারের আগে নিশ্চিত হয়ে নিন।",
+    interpMid: "ফলাফলটি সম্ভাব্য, তবে নিশ্চিত নয়। অন্য সম্ভাবনাগুলো দেখুন এবং স্থানীয়ভাবে নিশ্চিত হন।",
+    interpLow: "ফলাফলটি অনিশ্চিত। এটিকে শুধু ইঙ্গিত ভাবুন এবং আবার ছবি তুলে স্ক্যান করুন।",
+    kwHeuristicNote: "কীওয়ার্ডভিত্তিক স্কোর একটি মোটামুটি অনুমান, যা প্রতিটি মিলে যাওয়া কীওয়ার্ডে বাড়ে। এটি পরিমাপ করা নির্ভুলতা নয়।",
+    confDisclaimerNote: "নির্ভরযোগ্যতার স্কোর এই ছবির জন্য মডেলের নিজের নিশ্চয়তা, কোনো নিশ্চিত নির্ভুলতার হার নয়।",
+    possibilitiesHeading: "সম্ভাবনার ক্রম",
+    noAlternatives: "এই স্ক্যানে অন্য কোনো অনুমান সংরক্ষিত নেই।",
+    inputsHeading: "আপনার দেওয়া তথ্য",
+    noInputsNote: "অতিরিক্ত কোনো লক্ষণ বা নোট দেওয়া হয়নি।",
+    cropRisksHeading: "এই ফসলের সাধারণ ঝুঁকি",
+    nextStepsHeading: "পরবর্তী করণীয়",
+    nsRetake: "দিনের আলোতে একটি পাতা ফ্রেম ভরে ছবি তুলে আবার স্ক্যান করুন।",
+    nsConfirm: "কোনো রাসায়নিক ব্যবহারের আগে স্থানীয় কৃষি কর্মকর্তার (কৃষি কল সেন্টার ১৬১২৩) সাথে নিশ্চিত হন।",
+    nsMonitor: "লক্ষণ ছড়াচ্ছে কিনা দেখতে ৩–৫ দিন পর একই গাছ আবার স্ক্যান করুন।",
+    nsTreat: "উল্লিখিত চিকিৎসার ধাপ শুরু করুন এবং মারাত্মক আক্রান্ত পাতা সরিয়ে ফেলুন বা আলাদা করুন।",
+    statTotal: "মোট স্ক্যান",
+    statAvg: "গড় নির্ভরযোগ্যতা",
+    statModel: "AI মডেল স্ক্যান",
+    statLow: "কম নির্ভরযোগ্য স্ক্যান",
+    statTop: "সবচেয়ে বেশি পাওয়া সমস্যা"
   }
 };
 
@@ -1079,6 +1200,10 @@ const ADVICE_LINE_BN = [
     "নাইট্রোজেন কম। কম্পোস্ট, সবুজ সার বা সুষম নাইট্রোজেন সার ব্যবহার করুন।"
   ]
 ];
+
+// Fallback tables (bnTreatment / bnPrevention look these up; empty = use English text)
+const TREATMENT_BN = {};
+const PREVENTION_BN = {};
 
 const SEVERITY_BN = {
   low: "কম",
@@ -1595,7 +1720,7 @@ const ELEMENT_IDS = [
   "recommendForm", "recommendationResult",
   "farmForm", "taskForm", "taskList",
   "scannerForm", "scannerCropSelect", "leafImageInput", "leafPreview",
-  "scannerResult",
+  "scannerResult", "scanHistoryList", "scanHistoryCount", "scanStatsGrid", "scanReport",
   "cropSearchInput", "cropTypeSelect", "cropLibraryGrid", "pestGuideGrid",
   "complaintForm", "complaintList",
   "marketForm", "marketCropSelect", "marketList",
@@ -1679,6 +1804,7 @@ function setupEventListeners() {
     const button = event.target.closest?.("[data-delete-id]");
 
     if (button) {
+      event.preventDefault(); // delete button sits inside <summary>; do not toggle the card
       deleteRecord(button.dataset.deleteKind, button.dataset.deleteId);
     }
   });
@@ -1739,6 +1865,15 @@ function applyLanguage(lang) {
 
   if (state.dashboard) {
     renderDashboard();
+  }
+
+  if (state.scanHistory?.length) {
+    renderScanHistory();
+
+    if (state.openReportId && document.querySelector('.view[data-view="report"].active')) {
+      const openScan = state.scanHistory.find((item) => item.id === state.openReportId);
+      if (openScan) renderScanReport(openScan);
+    }
   }
 
   if (
@@ -2408,6 +2543,7 @@ function activateSection(section) {
     view.classList.toggle("active", view.dataset.view === section);
   });
 
+  if (section === "history") loadScanHistory();
   if (section === "market") loadMarketPrices();
   if (section === "weather") loadWeather();
   if (section === "finance") loadFinance();
@@ -2678,6 +2814,7 @@ async function submitScanner(event) {
     renderScannerResult(response.result);
 
     await loadDashboard();
+    loadScanHistory();
   } catch (error) {
     console.error("Leaf scanner error:", error);
 
@@ -2698,6 +2835,317 @@ function pestLabel(name) {
 
 function diseaseLabel(name) {
   return (isBn() && DISEASE_BN_LOWER[String(name).toLowerCase()]) || name;
+}
+
+// ---------- SCAN HISTORY + FULL-PAGE REPORT ----------
+
+// Put your real validation accuracy from Colab here (for example 94.2).
+// While it is null the report shows "Not recorded" instead of inventing a number.
+const PADDY_MODEL_VAL_ACCURACY = null;
+
+const BAND_COLOR = { high: "#21925c", mid: "#d29c3d", low: "#c24131" };
+
+function safeBn(fn, fallback) {
+  try { return fn(); } catch (error) { return fallback; }
+}
+
+function clampConf(value) {
+  return Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+}
+
+function confBand(conf, lowFlag) {
+  if (lowFlag || conf < 60) return "low";
+  if (conf < 85) return "mid";
+  return "high";
+}
+
+function bandLabel(band) {
+  return t(band === "high" ? "bandHigh" : band === "mid" ? "bandMid" : "bandLow");
+}
+
+function fmtScanDate(iso) {
+  return new Date(iso).toLocaleString(isBn() ? "bn-BD" : "en-GB", {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
+  });
+}
+
+async function loadScanHistory() {
+  if (!elements.scanHistoryList) return;
+  try {
+    const response = await api("/api/scans");
+    state.scanHistory = response.scans || [];
+    renderScanHistory();
+  } catch (error) {
+    elements.scanHistoryList.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function renderScanStats(scans) {
+  if (!elements.scanStatsGrid) return;
+
+  if (!scans.length) {
+    elements.scanStatsGrid.innerHTML = "";
+    return;
+  }
+
+  const n = scans.length;
+  const avg = Math.round(scans.reduce((sum, s) => sum + clampConf(s.confidence), 0) / n);
+  const modelCount = scans.filter((s) => s.source === "paddy-ml").length;
+  const lowCount = scans.filter((s) => confBand(clampConf(s.confidence), s.lowConfidence) === "low").length;
+
+  const counts = {};
+  scans.forEach((s) => { counts[s.issue] = (counts[s.issue] || 0) + 1; });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  const topName = top ? safeBn(() => bnIssue(top[0]), top[0]) : "-";
+
+  const stat = (label, value, sub) => `
+    <article class="scan-stat">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      ${sub ? `<em>${escapeHtml(sub)}</em>` : ""}
+    </article>`;
+
+  elements.scanStatsGrid.innerHTML = [
+    stat(t("statTotal"), n),
+    stat(t("statAvg"), `${avg}%`),
+    stat(t("statModel"), modelCount, `/ ${n}`),
+    stat(t("statLow"), lowCount),
+    stat(t("statTop"), topName, top ? `×${top[1]}` : "")
+  ].join("");
+}
+
+function renderScanHistory() {
+  if (!elements.scanHistoryList) return;
+  const scans = state.scanHistory || [];
+
+  if (elements.scanHistoryCount) elements.scanHistoryCount.textContent = String(scans.length);
+
+  renderScanStats(scans);
+
+  elements.scanHistoryList.innerHTML = scans.length
+    ? scans.map(renderScanHistoryCard).join("")
+    : emptyState("noScanHistoryYet");
+
+  elements.scanHistoryList.onclick = (event) => {
+    if (event.target.closest("[data-delete-id]")) return;
+    const card = event.target.closest("[data-open-report]");
+    if (card) openScanReport(card.dataset.openReport);
+  };
+
+  elements.scanHistoryList.onkeydown = (event) => {
+    if (event.key !== "Enter") return;
+    const card = event.target.closest?.("[data-open-report]");
+    if (card && event.target === card) openScanReport(card.dataset.openReport);
+  };
+}
+
+function renderScanHistoryCard(scan) {
+  const conf = clampConf(scan.confidence);
+  const band = confBand(conf, scan.lowConfidence);
+  const issue = safeBn(() => bnIssue(scan.issue), scan.issue);
+  const isModel = scan.source === "paddy-ml";
+
+  const photo = scan.imageUrl
+    ? `<img src="${escapeHtml(scan.imageUrl)}" alt="Scanned leaf" loading="lazy" />`
+    : `<div class="sh-noimg">🍃</div>`;
+
+  return `
+    <article class="scan-hist-card" tabindex="0" role="button" data-open-report="${escapeHtml(scan.id)}">
+      <div class="sh-photo">${photo}</div>
+      <div class="sh-info">
+        <strong>${escapeHtml(issue)}</strong>
+        <span>${escapeHtml(bnName(scan.crop))} | ${escapeHtml(fmtScanDate(scan.createdAt))}</span>
+        <div class="sh-badges">
+          <span class="rp-chip ${band}">${escapeHtml(conf)}% · ${escapeHtml(bandLabel(band))}</span>
+          <span class="tag">${escapeHtml(t(isModel ? "modelResultLabel" : "keywordResultLabel"))}</span>
+        </div>
+        <span class="sh-open">${escapeHtml(t("openReportLink"))} →</span>
+      </div>
+      ${deleteButton("scans", scan.id)}
+    </article>
+  `;
+}
+
+function openScanReport(id) {
+  const scan = (state.scanHistory || []).find((item) => item.id === id);
+  if (!scan) return;
+
+  state.openReportId = id;
+
+  document.querySelectorAll(".view").forEach((view) => {
+    view.classList.toggle("active", view.dataset.view === "report");
+  });
+
+  renderScanReport(scan);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderScanReport(scan) {
+  if (!elements.scanReport) return;
+
+  const conf = clampConf(scan.confidence);
+  const band = confBand(conf, scan.lowConfidence);
+  const color = BAND_COLOR[band];
+  const isModel = scan.source === "paddy-ml";
+
+  const issue = safeBn(() => bnIssue(scan.issue), scan.issue);
+  const treatment = safeBn(() => bnTreatment(scan.issue, scan.treatment), scan.treatment || []);
+  const prevention = safeBn(() => bnPrevention(scan.issue, scan.prevention), scan.prevention || "");
+  const preds = (scan.predictions || []).slice(0, 3);
+  const symptoms = scan.symptoms || [];
+  const risks = scan.cropRisks || null;
+  const reportNo = String(scan.id || "").replace(/^scan_/, "").slice(0, 8).toUpperCase();
+
+  // Gap between the 1st and 2nd guess.
+  let marginText = "-";
+  if (preds.length > 1) {
+    const gap = Math.round(Number(preds[0].confidence) - Number(preds[1].confidence));
+    const gapKey = gap >= 30 ? "marginClear" : gap >= 15 ? "marginMod" : "marginNarrow";
+    marginText = `${gap} ${t("pointsWord")} — ${t(gapKey)}`;
+  }
+
+  // Inputs actually used for this result.
+  const inputParts = [];
+  if (scan.imageUrl || scan.imageName) inputParts.push(t("inPhoto"));
+  if (symptoms.length) inputParts.push(`${symptoms.length} ${t("inSymptoms")}`);
+  if (scan.notes) inputParts.push(t("inNote"));
+
+  const valAcc = isModel
+    ? (PADDY_MODEL_VAL_ACCURACY != null ? `${PADDY_MODEL_VAL_ACCURACY}%` : t("notRecorded"))
+    : t("notApplicable");
+
+  const interp = t(band === "high" ? "interpHigh" : band === "mid" ? "interpMid" : "interpLow");
+
+  const steps =
+    band === "low" ? ["nsRetake", "nsConfirm"]
+    : band === "mid" ? ["nsConfirm", "nsMonitor"]
+    : ["nsTreat", "nsMonitor"];
+
+  const row = (label, value) => `
+    <div class="rp-row"><span>${escapeHtml(label)}</span><div>${value}</div></div>`;
+
+  const photo = scan.imageUrl
+    ? `<img src="${escapeHtml(scan.imageUrl)}" alt="Scanned leaf" />`
+    : `<div class="sh-noimg">🍃</div>`;
+
+  const riskTags = risks
+    ? [
+        ...(risks.pests || []).map((p) => pestLabel(p)),
+        ...(risks.diseases || []).map((d) => diseaseLabel(d))
+      ]
+    : [];
+
+  elements.scanReport.innerHTML = `
+    <div class="rp-toolbar report-actions">
+      <button type="button" class="rp-btn" data-report-back>${escapeHtml(t("backToHistory"))}</button>
+      <button type="button" class="rp-btn primary" data-report-print>🖨️ ${escapeHtml(t("printReportBtn"))}</button>
+    </div>
+
+    <header class="rp-title">
+      <div>
+        <p>AgroSmart</p>
+        <h2>${escapeHtml(t("reportTitle"))}</h2>
+      </div>
+      <div class="rp-meta">
+        <span>${escapeHtml(t("reportIdLabel"))}: <b>${escapeHtml(reportNo)}</b></span>
+        <span>${escapeHtml(t("scannedOnLabel"))}: <b>${escapeHtml(fmtScanDate(scan.createdAt))}</b></span>
+      </div>
+    </header>
+
+    <section class="rp-card rp-hero">
+      <div class="rp-photo">${photo}</div>
+      <div class="rp-hero-body">
+        <p class="sc-crop">${escapeHtml(bnName(scan.crop))}</p>
+        <h3>${escapeHtml(issue)}</h3>
+        <div class="sh-badges">
+          <span class="rp-chip ${band}">${escapeHtml(t("reliabilityLabel"))}: ${escapeHtml(bandLabel(band))}</span>
+          <span class="tag">${escapeHtml(t(isModel ? "modelResultLabel" : "keywordResultLabel"))}</span>
+          <span class="tag">${escapeHtml(t("severityLabel"))} ${escapeHtml(bnSeverity(scan.severity))}</span>
+        </div>
+      </div>
+      <div class="sc-ring" style="--p:${conf};--c:${color}">
+        <b>${escapeHtml(conf)}<small>%</small></b>
+        <span>${escapeHtml(t("matchLabel"))}</span>
+      </div>
+    </section>
+
+    <section class="rp-card">
+      <h4>${escapeHtml(t("accuracyHeading"))}</h4>
+
+      ${row(t("confScoreLabel"), `<strong>${escapeHtml(conf)}%</strong>`)}
+      ${row(t("reliabilityLabel"), `
+        <span class="rp-chip ${band}">${escapeHtml(bandLabel(band))}</span>
+        <div class="rp-scale">
+          <i class="z low"></i><i class="z mid"></i><i class="z high"></i>
+          <b class="mk" style="left:${conf}%"></b>
+        </div>
+        <small>${escapeHtml(t("bandScaleNote"))}</small>`)}
+      ${row(t("sourceLabel"), escapeHtml(t(isModel ? "sourceModelDesc" : "sourceKeywordDesc")))}
+      ${row(t("marginLabel"), escapeHtml(marginText))}
+      ${row(t("valAccLabel"), escapeHtml(valAcc))}
+      ${row(t("inputsLabel"), escapeHtml(inputParts.join(" + ") || "-"))}
+
+      <p class="rp-interp ${band}">${escapeHtml(interp)}</p>
+      <p class="rp-small">${escapeHtml(t(isModel ? "confDisclaimerNote" : "kwHeuristicNote"))}</p>
+    </section>
+
+    <section class="rp-card">
+      <h4>${escapeHtml(t("possibilitiesHeading"))}</h4>
+      ${
+        preds.length
+          ? `<div class="sc-bars">${preds.map((p, i) => {
+              const w = clampConf(p.confidence);
+              const name = safeBn(() => bnIssue(p.issue), p.issue || p.label);
+              return `<div class="sc-bar">
+                <div><span>${i + 1}. ${escapeHtml(name)}</span><em>${w}%</em></div>
+                <div class="sc-track"><i style="--w:${w}%"></i></div>
+              </div>`;
+            }).join("")}</div>`
+          : `<p class="rp-small">${escapeHtml(t("noAlternatives"))}</p>`
+      }
+    </section>
+
+    <section class="rp-card">
+      <h4>${escapeHtml(t("inputsHeading"))}</h4>
+      ${
+        symptoms.length || scan.notes
+          ? `${symptoms.length ? `<p><strong>${escapeHtml(t("symptomsChosenLabel"))}:</strong> ${escapeHtml(symptoms.join(", "))}</p>` : ""}
+             ${scan.notes ? `<p><strong>${escapeHtml(t("noteLabel"))}:</strong> ${escapeHtml(scan.notes)}</p>` : ""}`
+          : `<p class="rp-small">${escapeHtml(t("noInputsNote"))}</p>`
+      }
+    </section>
+
+    ${treatment.length ? `
+    <section class="rp-card">
+      <h4>${escapeHtml(t("treatmentHeading"))}</h4>
+      <ol class="sc-steps">${treatment.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ol>
+    </section>` : ""}
+
+    ${prevention ? `
+    <section class="rp-card">
+      <h4>${escapeHtml(t("preventionHeading"))}</h4>
+      <p>${escapeHtml(prevention)}</p>
+    </section>` : ""}
+
+    ${risks ? `
+    <section class="rp-card">
+      <h4>${escapeHtml(t("cropRisksHeading"))}</h4>
+      ${riskTags.length ? `<div class="sc-tags">${riskTags.map((x) => `<span>${escapeHtml(x)}</span>`).join("")}</div>` : ""}
+      ${risks.pesticide ? `<p style="margin-top:10px"><strong>${escapeHtml(t("pesticideNoteLabel"))}</strong> ${escapeHtml(bnPesticide(scan.crop, risks.pesticide))}</p>` : ""}
+    </section>` : ""}
+
+    <section class="rp-card">
+      <h4>${escapeHtml(t("nextStepsHeading"))}</h4>
+      <ol class="sc-steps">${steps.map((k) => `<li>${escapeHtml(t(k))}</li>`).join("")}</ol>
+    </section>
+
+    ${scan.disclaimer ? `<p class="sc-note">${escapeHtml(bnDisclaimer(scan.disclaimer))}</p>` : ""}
+  `;
+
+  elements.scanReport.querySelector("[data-report-back]")
+    ?.addEventListener("click", () => activateSection("history"));
+  elements.scanReport.querySelector("[data-report-print]")
+    ?.addEventListener("click", () => window.print());
 }
 
 function renderScannerResult(result) {
@@ -3042,6 +3490,8 @@ async function deleteRecord(kind, id) {
       await loadFinance();
     } else if (kind === "contacts") {
       await loadContacts();
+    } else if (kind === "scans") {
+      await Promise.all([loadDashboard(), loadScanHistory()]);
     } else {
       await loadDashboard();
     }

@@ -58,6 +58,14 @@ function validateFeatures(features) {
     return "pH must be between 0 and 14";
   }
 
+  if (features.n < 0 || features.p < 0 || features.k < 0 || features.rainfall < 0) {
+    return "Nitrogen, phosphorus, potassium and rainfall cannot be negative";
+  }
+
+  if (features.humidity < 0 || features.humidity > 100) {
+    return "Humidity must be between 0 and 100";
+  }
+
   return null;
 }
 

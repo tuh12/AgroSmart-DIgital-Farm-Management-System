@@ -785,14 +785,26 @@ function analyzeLeaf(input) {
       item.symptoms.toLowerCase().split(/[ ,.;]+/).some((word) => word && haystack.includes(word));
   }).slice(0, 3);
 
-  const confidence = hitCount
-    ? Math.min(96, 58 + hitCount * 13)
-    : (specificRules.length ? 60 : 52);
+  // No keyword matched = no evidence, so say so instead of showing 60%.
+  const confidence = hitCount ? Math.min(90, 55 + hitCount * 10) : 35;
+  const lowConfidence = hitCount === 0;
+
+  const ranked = specificMatches.length ? specificMatches : genericMatches;
+  const predictions = ranked.length
+    ? ranked.slice(0, 3).map(({ rule, hits }) => ({
+        label: rule.issue,
+        issue: rule.issue,
+        confidence: Math.min(90, 55 + hits.length * 10)
+      }))
+    : [{ label: selected.issue, issue: selected.issue, confidence }];
 
   return {
     crop: cropName || "Unknown crop",
     issue: selected.issue,
     confidence,
+    lowConfidence,
+    source: "keyword-rules",
+    predictions,
     severity: selected.severity,
     treatment: selected.treatment,
     prevention: selected.prevention,
@@ -802,7 +814,9 @@ function analyzeLeaf(input) {
       pesticide: crop.pesticide
     } : null,
     pestHints,
-    disclaimer: "Image scanner is a field-assistant prototype. Confirm chemical use with a local agriculture officer and always follow product label dose."
+    disclaimer: lowConfidence
+      ? "No symptoms or notes matched, so this is only a low-confidence guess from common diseases of this crop. Tick the symptoms you see or add a note, and confirm with a local agriculture officer before using any chemical."
+      : "Image scanner is a field-assistant prototype. Confirm chemical use with a local agriculture officer and always follow product label dose."
   };
 }
 
