@@ -40,7 +40,8 @@ app.use(express.json({ limit: "15mb" }));
 const PUBLIC_FILES = new Set(["index.html", "app.js", "styles.css"]);
 app.use((req, res, next) => {
   if (req.method !== "GET" && req.method !== "HEAD") return next();
-  const name = decodeURIComponent(req.path).replace(/^\/+/, "");
+  let name;
+  try { name = decodeURIComponent(req.path).replace(/^\/+/, ""); } catch (e) { return next(); }
   // Front-end files + image files that sit directly in the project root
   // (e.g. "ChatGPT Image ....png", "images (1).jpg"). No sub-folders, no "..".
   const isRootImage = /^[^/\\]+\.(jpg|jpeg|png|webp|svg|ico)$/i.test(name) && !name.includes("..");
@@ -1061,6 +1062,12 @@ app.post("/api/scanner/leaf", authMiddleware, async (req, res) => {
   // symptoms clearly point to (e.g. an older 10-class model vs Ufra / False
   // smut / Bakanae / Sheath blight), the model can only answer wrongly.
   // Trust the symptom match in that case instead.
+  // Keyword issue -> model label, for diseases the image model often confuses.
+const KW_TO_LABEL = {
+    "Bacterial leaf blight": "bacterial_leaf_blight",
+    "Sheath blight": "sheath_blight",
+    "Tungro virus": "tungro"
+  };
   const MODEL_BLIND = {
     "Ufra disease": "ufra",
     "False smut": "false_smut",
@@ -1071,6 +1078,10 @@ app.post("/api/scanner/leaf", authMiddleware, async (req, res) => {
     const kw = analyzeLeaf(req.body || {});
     const needed = MODEL_BLIND[kw.issue];
     if (needed && !kw.lowConfidence && !result.modelClasses.includes(needed)) result = kw;
+    // The model is unsure and the farmer's ticked symptoms clearly point to a
+    // different one of the 3 commonly confused diseases -> trust the symptoms.
+    else if (KW_TO_LABEL[kw.issue] && !kw.lowConfidence && result.confidence < 85 &&
+             result.predictions?.[0]?.label !== KW_TO_LABEL[kw.issue]) result = kw;
   }
   if (!result) result = analyzeLeaf(req.body || {});
 

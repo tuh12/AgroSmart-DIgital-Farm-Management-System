@@ -17,6 +17,7 @@ const path = require("path");
 
 const MODEL_DIR = process.env.PADDY_MODEL_DIR || path.join(__dirname, "tfjs_model");
 const IMG_SIZE = 224;
+const PREPROCESS = process.env.PADDY_PREPROCESS || "signed";
 
 let tf;
 let sharp;
@@ -123,7 +124,17 @@ function softmax(values) {
   return exps.map((v) => v / sum);
 }
 
-async function predictLocal(imageBase64, topK = 3) {
+function scalePixels(data, mode) {
+  if (mode === "unit") return Float32Array.from(data, (v) => v / 255);
+  if (mode === "raw") return Float32Array.from(data, (v) => v);
+  return Float32Array.from(data, (v) => v / 127.5 - 1); // MobileNetV2 default
+}
+
+function getLabels() {
+  return labels;
+}
+
+async function predictLocal(imageBase64, topK = 3, mode = PREPROCESS) {
   const model = await loadModel();
 
   const raw = Buffer.from(imageBase64, "base64");
@@ -135,9 +146,7 @@ async function predictLocal(imageBase64, topK = 3) {
     .toBuffer({ resolveWithObject: true });
 
   let probs = tf.tidy(() => {
-    // MobileNetV2 preprocessing: -1 .. 1
-    const pixels = Float32Array.from(data, (v) => v / 127.5 - 1);
-    const input = tf.tensor4d(pixels, [1, IMG_SIZE, IMG_SIZE, 3]);
+    const input = tf.tensor4d(scalePixels(data, mode), [1, IMG_SIZE, IMG_SIZE, 3]);
     const output = model.predict(input);
     return Array.from(output.dataSync());
   });
@@ -154,4 +163,4 @@ async function predictLocal(imageBase64, topK = 3) {
     .slice(0, topK);
 }
 
-module.exports = { isLocalModelAvailable, predictLocal, loadModel };
+module.exports = { isLocalModelAvailable, predictLocal, loadModel, getLabels, MODEL_DIR };

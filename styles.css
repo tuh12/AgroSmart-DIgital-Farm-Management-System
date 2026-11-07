@@ -25,9 +25,10 @@
   --shadow: 0 28px 80px rgba(8, 36, 29, 0.16);
   --glass: rgba(255, 255, 255, 0.12);
   --card-shadow: 0 18px 44px rgba(12, 45, 37, 0.08);
+  --font-display: "Fraunces", Georgia, serif;
   --font-bangla: "SutonnyMJ", "Sutonny MJ", serif;
   --font-english: "Times New Roman", Times, serif;
-  --font-ui: "Times New Roman", Times, serif;
+  --font-ui: "Times New Roman", system-ui, sans-serif;
 }
 
 * {

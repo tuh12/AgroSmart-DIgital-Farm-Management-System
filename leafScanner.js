@@ -135,7 +135,7 @@ const DISEASE_INFO = {
     prevention: "Use resistant varieties and water early morning."
   },
   "Bacterial leaf blight": {
-    keywords: ["leaf margin", "yellow margin", "margin dry", "straw", "water soaked", "streak", "wilt", "dry up", "blight"],
+    keywords: ["leaf margin", "yellow margin", "margin dry", "margin yellow", "wavy", "straw", "water soaked", "dry up", "tip dry", "leaf blight", "bacterial", "পাতা পোড়া", "পাতা ঝলসা", "ঝলসানো"],
     severity: "High",
     treatment: [
       "Drain the field and avoid excess standing water around the base.",
@@ -165,7 +165,7 @@ const DISEASE_INFO = {
     prevention: "Use quality seed and balanced fertilizer, particularly potash."
   },
   "Sheath blight": {
-    keywords: ["sheath", "gray oval", "greenish gray", "oval lesion", "irregular lesion", "water line", "khol", "lower leaf", "blight"],
+    keywords: ["sheath", "gray oval", "greenish gray", "oval lesion", "irregular lesion", "water line", "khol", "snake", "stem base", "খোলপোড়া", "খোল পোড়া", "সাপের চামড়া"],
     severity: "Medium",
     treatment: [
       "Avoid dense planting and excess nitrogen.",
@@ -175,7 +175,7 @@ const DISEASE_INFO = {
     prevention: "Maintain proper plant spacing and balanced fertilizer use."
   },
   "Tungro virus": {
-    keywords: ["yellow orange", "orange yellow", "orange leaf", "stunt", "virus", "tungro"],
+    keywords: ["yellow orange", "orange yellow", "orange leaf", "orange tip", "rusty", "stunt", "virus", "tungro", "টুংরো", "কমলা", "খর্বাকৃতি"],
     severity: "High",
     treatment: [
       "Remove and destroy infected hills as early as possible.",
@@ -185,7 +185,7 @@ const DISEASE_INFO = {
     prevention: "Use a resistant variety and synchronize planting with neighboring fields."
   },
   "Bakanae disease": {
-    keywords: ["tall thin", "tall", "spindly", "thin stem", "roots at node", "white roots", "foot rot", "bakanae", "pale"],
+    keywords: ["tall thin", "tall", "spindly", "thin stem", "roots at node", "white roots", "foot rot", "bakanae"],
     severity: "Medium",
     treatment: [
       "Remove and destroy abnormally tall, thin seedlings.",
