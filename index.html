@@ -15,7 +15,7 @@
 
         <div class="hero-inner">
           <div class="topbar-hero">
-            <img src="logo.png" alt="logo">
+            <img src="ChatGPT Image Aug 25, 2026, 11_33_24 PM.png" alt="logo">
             <div class="brand-badge">AgroSmart</div>
             <label class="language-switch" for="languageSelect">
               <span data-i18n="langLabel">Language</span>
@@ -230,6 +230,13 @@
                   <label><input type="checkbox" name="symptoms" value="holes chewed caterpillar borer" /> <span data-i18n="symHoles">Holes or bite marks</span></label>
                   <label><input type="checkbox" name="symptoms" value="sticky aphid whitefly tiny insect" /> <span data-i18n="symSticky">Sticky tiny insects</span></label>
                   <label><input type="checkbox" name="symptoms" value="pale nutrient deficiency chlorosis" /> <span data-i18n="symPale">Pale/yellow plant</span></label>
+                  <label><input type="checkbox" name="symptoms" value="eye shaped spots" /> <span data-i18n="symEye">Eye-shaped spots</span></label>
+                  <label><input type="checkbox" name="symptoms" value="leaf margin yellow dry straw" /> <span data-i18n="symMargin">Leaf edges yellow/drying</span></label>
+                  <label><input type="checkbox" name="symptoms" value="gray oval lesion on sheath" /> <span data-i18n="symSheath">Gray lesions on stem base</span></label>
+                  <label><input type="checkbox" name="symptoms" value="tall thin pale seedling roots at node" /> <span data-i18n="symTall">Tall thin plant / roots at node</span></label>
+                  <label><input type="checkbox" name="symptoms" value="twisted crinkled leaf panicle not emerging" /> <span data-i18n="symTwisted">Twisted leaves / stuck panicle</span></label>
+                  <label><input type="checkbox" name="symptoms" value="orange yellow leaf stunt" /> <span data-i18n="symOrange">Orange-yellow stunted plant</span></label>
+                  <label><input type="checkbox" name="symptoms" value="orange spore ball on grain" /> <span data-i18n="symBalls">Orange/green balls on grains</span></label>
                 </div>
 
                 <button class="primary-btn" type="submit" data-i18n="scanLeafBtn">Scan Leaf</button>
@@ -585,7 +592,7 @@
           <input name="email" type="email" data-i18n-ph="phEmail" placeholder="Email address" autocomplete="email" required />
           <div class="password-wrap">
             <input name="password" id="passwordInput" type="password" data-i18n-ph="phPassword" placeholder="Password" autocomplete="current-password" required />
-            <button id="togglePasswordBtn" type="button" aria-label="Show password">👁</button>
+            <button id="togglePasswordBtn" type="button" aria-label="Show password">&#128065;</button>
           </div>
           <div class="reset-fields hidden" id="resetFields">
             <div class="password-wrap">
@@ -602,6 +609,7 @@
           <button class="sign-btn" id="authSubmitBtn" type="submit" data-i18n="signInBtn">Sign In</button>
           <p class="auth-error" id="authError"></p>
         </form>
+
 
         <p class="switch-auth">
           <span id="switchText" data-i18n="noAccount">Don't have an account?</span>

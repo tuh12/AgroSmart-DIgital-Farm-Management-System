@@ -11,8 +11,13 @@ const state = {
   crops: [],
   pests: [],
   scanHistory: [],
+  openReportId: null,
+  liveWeather: null,
   lang: "en"
 };
+
+// Last result drawn by each result panel, so a language switch can redraw it.
+const lastRender = {};
 
 
 // ============================================================
@@ -300,6 +305,13 @@ const translations = {
     symHoles: "Leaf holes",
     symSticky: "Sticky leaves",
     symPale: "Pale leaves",
+    symEye: "Eye-shaped spots",
+    symMargin: "Leaf edges yellow/drying",
+    symSheath: "Gray lesions on stem base",
+    symTall: "Tall thin plant / roots at node",
+    symTwisted: "Twisted leaves / stuck panicle",
+    symOrange: "Orange-yellow stunted plant",
+    symBalls: "Orange/green balls on grains",
     scanLeafBtn: "Scan Leaf",
     uploadLeafHint: "Choose a leaf image to preview",
     chooseImageBtn: "Choose Image",
@@ -356,7 +368,8 @@ const translations = {
     bandLow: "Low",
     bandScaleNote: "Bands: below 60% = Low, 60–84% = Medium, 85% and above = High.",
     sourceLabel: "Result source",
-    sourceModelDesc: "AI image model (MobileNetV2, 224×224 px, 10 rice conditions) analysed your photo.",
+    sourceModelDesc: "AI image model (MobileNetV2, 224×224 px, rice conditions) analysed your photo.",
+    sourceVisionDesc: "A vision AI looked at your photo and chose among 14 rice conditions (or said it could not tell). Its certainty is a rough level, not a measured accuracy.",
     sourceKeywordDesc: "Keyword rules matched your crop, symptoms and note. The photo itself was NOT analysed by AI.",
     marginLabel: "Gap to 2nd guess",
     pointsWord: "pts",
@@ -672,6 +685,13 @@ const translations = {
     symHoles: "পাতায় ছিদ্র",
     symSticky: "আঠালো পাতা",
     symPale: "ফ্যাকাশে পাতা",
+    symEye: "চোখের মতো দাগ",
+    symMargin: "পাতার কিনারা হলুদ/শুকিয়ে যাওয়া",
+    symSheath: "গোড়ার খোলে ধূসর দাগ",
+    symTall: "লম্বা চিকন গাছ / গিঁটে শিকড়",
+    symTwisted: "পাতা পাকানো / শীষ বের হয় না",
+    symOrange: "কমলা-হলুদ খর্বাকৃতি গাছ",
+    symBalls: "দানায় কমলা/সবুজ গুটি",
     scanLeafBtn: "পাতা স্ক্যান করুন",
     uploadLeafHint: "প্রিভিউ দেখতে পাতার ছবি নির্বাচন করুন",
     chooseImageBtn: "ছবি নির্বাচন করুন",
@@ -729,6 +749,7 @@ const translations = {
     bandScaleNote: "স্তর: ৬০%-এর নিচে = কম, ৬০–৮৪% = মাঝারি, ৮৫% ও তার বেশি = বেশি।",
     sourceLabel: "ফলাফলের উৎস",
     sourceModelDesc: "AI ছবি-মডেল (MobileNetV2, ২২৪×২২৪ পিক্সেল, ১০টি ধানের অবস্থা) আপনার ছবি বিশ্লেষণ করেছে।",
+    sourceVisionDesc: "একটি ভিশন AI আপনার ছবি দেখে ১৪টি ধানের অবস্থার মধ্য থেকে বেছে নিয়েছে (অথবা বলেছে নিশ্চিত নয়)। নির্ভরযোগ্যতা একটি মোটামুটি স্তর, পরিমাপ করা নির্ভুলতা নয়।",
     sourceKeywordDesc: "ফসল, লক্ষণ ও নোটের কীওয়ার্ড মিলিয়ে অনুমান করা হয়েছে। ছবিটি AI দিয়ে বিশ্লেষণ করা হয়নি।",
     marginLabel: "দ্বিতীয় অনুমান থেকে ব্যবধান",
     pointsWord: "পয়েন্ট",
@@ -1209,7 +1230,10 @@ const SEVERITY_BN = {
   low: "কম",
   medium: "মাঝারি",
   high: "বেশি",
-  critical: "গুরুতর"
+  critical: "গুরুতর",
+  none: "নেই",
+  unknown: "অজানা",
+  "low-medium": "কম-মাঝারি"
 };
 
 const ISSUE_BN = {
@@ -1219,95 +1243,102 @@ const ISSUE_BN = {
   "Virus / leaf curl": "ভাইরাস / পাতা কুঁকড়ানো",
   "Nutrient deficiency": "পুষ্টির ঘাটতি",
   "Insect chewing damage": "পাতা খাওয়া পোকার ক্ষতি",
-  "Sucking pest damage": "রস শোষণকারী পোকার ক্ষতি"
+  "Sucking pest damage": "রস শোষণকারী পোকার ক্ষতি",
+  "Unable to identify": "শনাক্ত করা যায়নি",
+  "Ufra disease": "উফরা রোগ",
+  "False smut": "লক্ষ্মীর গু (ফলস স্মাট)"
 };
 // ---------- Paddy ML model diseases (Bangla) ----------
 const PADDY_BN = {
   "Bacterial Leaf Blight": {
-    issue: "ব্যাকটেরিয়াল পাতা ব্লাইট",
-    treatment: [
-      "আক্রান্ত পাতা পরীক্ষা করুন এবং রোগ ছড়াচ্ছে কিনা লক্ষ্য রাখুন।",
-      "অতিরিক্ত নাইট্রোজেন সার এড়িয়ে চলুন এবং জমির পানি সঠিকভাবে ব্যবস্থাপনা করুন।",
-      "কোনো রাসায়নিক প্রয়োগের আগে স্থানীয় কৃষি কর্মকর্তার পরামর্শ নিন।"
-    ],
-    prevention: "সুস্থ বীজ ব্যবহার করুন, সুষম সার প্রয়োগ করুন এবং নিয়মিত জমি পরিদর্শন করুন।"
+    issue: "ব্যাকটেরিয়াল পাতা ব্লাইট (পাতা পোড়া রোগ)",
+    treatment: ["জমির পানি বের করে দিন এবং গোড়ায় অতিরিক্ত পানি জমতে দেবেন না।", "মারাত্মক আক্রান্ত পাতা/গাছ তুলে নষ্ট করে ফেলুন।", "স্থানীয়ভাবে অনুমোদিত হলে তামাভিত্তিক ব্যাকটেরিয়ানাশক ব্যবহার করুন।"],
+    prevention: "রোগমুক্ত প্রত্যয়িত বীজ, প্রতিরোধী জাত ও সুষম নাইট্রোজেন ব্যবহার করুন।",
+    pesticide: "স্থানীয়ভাবে অনুমোদিত হলে তামাভিত্তিক ব্যাকটেরিয়ানাশক।"
   },
   "Bacterial Leaf Streak": {
-    issue: "ব্যাকটেরিয়াল পাতা স্ট্রিক",
-    treatment: [
-      "আক্রান্ত গাছ পরীক্ষা করুন এবং রোগের অগ্রগতি পর্যবেক্ষণ করুন।",
-      "আক্রান্ত গাছের অংশ এক জমি থেকে অন্য জমিতে নেওয়া এড়িয়ে চলুন।",
-      "লক্ষণ ছড়িয়ে পড়লে স্থানীয় কৃষি কর্মকর্তার পরামর্শ নিন।"
-    ],
-    prevention: "সুস্থ বীজ ব্যবহার করুন এবং জমি ও কৃষি যন্ত্রপাতি পরিষ্কার রাখুন।"
+    issue: "ব্যাকটেরিয়াল পাতা স্ট্রিক (পাতার রেখা রোগ)",
+    treatment: ["অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন এবং পাতা ভেজা থাকার সময় কমান।", "মারাত্মক আক্রান্ত পাতা তুলে নষ্ট করুন।", "স্থানীয়ভাবে অনুমোদিত হলে তামাভিত্তিক ব্যাকটেরিয়ানাশক ব্যবহার করুন।"],
+    prevention: "পরিষ্কার বীজ ও প্রতিরোধী জাত ব্যবহার করুন; ভেজা জমিতে কাজ করা এড়িয়ে চলুন।",
+    pesticide: "স্থানীয়ভাবে অনুমোদিত হলে তামাভিত্তিক ব্যাকটেরিয়ানাশক।"
   },
   "Bacterial Panicle Blight": {
     issue: "ব্যাকটেরিয়াল শীষ ব্লাইট",
-    treatment: [
-      "আক্রান্ত শীষ পরীক্ষা করুন এবং কৃষি কর্মকর্তার কাছ থেকে রোগ নিশ্চিত করুন।",
-      "অতিরিক্ত নাইট্রোজেন সার এড়িয়ে চলুন এবং ফসলের সঠিক যত্ন নিন।",
-      "স্থানীয়ভাবে অনুমোদিত পরামর্শ ছাড়া কোনো কীটনাশক বা ব্যাকটেরিয়ানাশক প্রয়োগ করবেন না।"
-    ],
-    prevention: "সুস্থ বীজ ব্যবহার করুন, সুষম সার দিন এবং ফসলের বৃদ্ধির সময় শীষ নিয়মিত পর্যবেক্ষণ করুন।"
+    treatment: ["আক্রান্ত হলে কার্যকর প্রতিকার নেই — মারাত্মক আক্রান্ত গাছ সরিয়ে ফেলুন।", "অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন এবং পানি ব্যবস্থাপনা স্থির রাখুন।", "কোনো ব্যাকটেরিয়ানাশক ব্যবহারের আগে স্থানীয় কৃষি কর্মকর্তার পরামর্শ নিন।"],
+    prevention: "প্রত্যয়িত পরিষ্কার বীজ ব্যবহার করুন, অতিরিক্ত নাইট্রোজেন এড়ান এবং ফুল আসার সময় গরমের চাপ এড়াতে সময়মতো রোপণ করুন।",
+    pesticide: "স্থানীয় কৃষি কর্মকর্তার পরামর্শ নিন।"
   },
   "Rice Blast": {
     issue: "ধানের ব্লাস্ট রোগ",
-    treatment: [
-      "আক্রান্ত পাতা ও শীষে ছড়িয়ে পড়া দাগ পরীক্ষা করুন।",
-      "অতিরিক্ত নাইট্রোজেন সার এড়িয়ে চলুন এবং সুষম পুষ্টি বজায় রাখুন।",
-      "স্থানীয়ভাবে অনুমোদিত নিয়ন্ত্রণ ব্যবস্থা সম্পর্কে কৃষি কর্মকর্তার পরামর্শ নিন।"
-    ],
-    prevention: "সম্ভব হলে প্রতিরোধী জাত, সুস্থ বীজ এবং সুষম সার ব্যবহার করুন।"
+    treatment: ["আক্রান্ত কুশি/শীষ তুলে নষ্ট করুন।", "অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন; সুষম সার দিন।", "রোগ নিশ্চিত হওয়ার পর লেবেলের মাত্রা মেনে ট্রাইসাইক্লাজল বা আইসোপ্রোথিওলেন প্রয়োগ করুন।"],
+    prevention: "ব্লাস্ট-প্রতিরোধী জাত ব্যবহার করুন; দেরিতে বা ঘন রোপণ এবং পানির চাপ এড়ান।",
+    pesticide: "ট্রাইসাইক্লাজল বা আইসোপ্রোথিওলেন (স্থানীয় বিশেষজ্ঞের নিশ্চিতকরণের পর)।"
   },
   "Brown Spot": {
     issue: "বাদামি দাগ রোগ",
-    treatment: [
-      "ফসলের পুষ্টি ও মাটির অবস্থা পরীক্ষা করুন।",
-      "সুষম সার ও যথাযথ পানি ব্যবস্থাপনা বজায় রাখুন।",
-      "লক্ষণ ছড়াতে থাকলে স্থানীয় কৃষি পরামর্শ নিন।"
-    ],
-    prevention: "সুস্থ বীজ ব্যবহার করুন এবং ফসলের সুষম পুষ্টি বজায় রাখুন।"
+    treatment: ["মাটির উর্বরতা, বিশেষ করে পটাশিয়াম বাড়ান।", "ফসল কাটার পর আক্রান্ত খড়/নাড়া নষ্ট করুন।", "সংক্রমণ মারাত্মক হলে ম্যানকোজেব বা প্রোপিকোনাজল ব্যবহার করুন।"],
+    prevention: "সুস্থ শোধিত বীজ ও সুষম সার, বিশেষ করে পটাশ ব্যবহার করুন।",
+    pesticide: "ম্যানকোজেব বা প্রোপিকোনাজল (শুধু মারাত্মক হলে)।"
   },
   "Dead Heart": {
-    issue: "মরা ডিগ (ডেড হার্ট)",
-    treatment: [
-      "কাণ্ড পরীক্ষা করুন এবং মাজরা পোকার লার্ভা আছে কিনা দেখুন।",
-      "নিয়ন্ত্রণ পদ্ধতি বেছে নেওয়ার আগে পোকার ক্ষতি নিশ্চিত করুন।",
-      "উপযুক্ত ব্যবস্থাপনা সম্পর্কে স্থানীয় কৃষি কর্মকর্তার পরামর্শ নিন।"
-    ],
-    prevention: "নিয়মিত জমি পর্যবেক্ষণ করুন এবং ফসলের অবশিষ্টাংশ ও আগাছা যথাযথভাবে পরিষ্কার করুন।"
+    issue: "মরা ডিগ (মাজরা পোকা)",
+    treatment: ["আক্রান্ত কুশি ও ডিমের গাদা তুলে নষ্ট করুন।", "মথ ধরতে/পর্যবেক্ষণে আলোর ফাঁদ ব্যবহার করুন।", "স্থানীয় পরামর্শে ক্লোরানট্রানিলিপ্রোল বা কার্টাপ হাইড্রোক্লোরাইড ব্যবহার করুন।"],
+    prevention: "ফসল কাটার পর নাড়া সরিয়ে ফেলুন, অতিরিক্ত নাইট্রোজেন এড়ান এবং প্রতিবেশীদের সাথে সময়মতো রোপণ করুন।",
+    pesticide: "ক্লোরানট্রানিলিপ্রোল বা কার্টাপ হাইড্রোক্লোরাইড (স্থানীয় সুপারিশ অনুযায়ী)।"
   },
   "Downy Mildew": {
     issue: "ডাউনি মিলডিউ",
-    treatment: [
-      "রোগ নিশ্চিত করতে আক্রান্ত গাছ পরীক্ষা করুন।",
-      "জমি ও ফসলের যথাযথ ব্যবস্থাপনা বজায় রাখুন।",
-      "রোগনাশক ব্যবহারের আগে কৃষি কর্মকর্তার পরামর্শ নিন।"
-    ],
-    prevention: "সুস্থ বীজ ব্যবহার করুন এবং ফসলের স্বাস্থ্য ও জমির অবস্থা নিয়মিত পর্যবেক্ষণ করুন।"
+    treatment: ["পানি নিষ্কাশন ভালো করুন এবং বীজতলায় পানি জমতে দেবেন না।", "মারাত্মক আক্রান্ত গাছ তুলে নষ্ট করুন।", "রোগ ছড়াতে থাকলে স্থানীয়ভাবে সুপারিশকৃত ছত্রাকনাশক (যেমন মেটালাক্সিল + ম্যানকোজেব) ব্যবহার করুন।"],
+    prevention: "ভালো নিষ্কাশনযুক্ত বীজতলা ও প্রতিরোধী জাত ব্যবহার করুন; ঘন রোপণ এড়ান।",
+    pesticide: "মেটালাক্সিল + ম্যানকোজেব (শুধু স্থানীয়ভাবে সুপারিশ করা হলে)।"
   },
   "Rice Hispa": {
     issue: "ধানের হিস্পা পোকা",
-    treatment: [
-      "পাতায় পূর্ণবয়স্ক বিটল ও খাওয়ার ক্ষতি আছে কিনা পরীক্ষা করুন।",
-      "নিয়ন্ত্রণ পদ্ধতি বেছে নেওয়ার আগে আক্রমণের মাত্রা পর্যবেক্ষণ করুন।",
-      "ক্ষতি ব্যাপক হলে স্থানীয় কৃষি কর্মকর্তার পরামর্শ নিন।"
-    ],
-    prevention: "নিয়মিত জমি পরিদর্শন করুন এবং আগাছা ও ফসলের অবশিষ্টাংশ যথাযথভাবে পরিচালনা করুন।"
+    treatment: ["বীজতলা/প্রাথমিক অবস্থায় আক্রান্ত পাতার ডগা কেটে নষ্ট করুন।", "ছোট জমিতে হাতে বা জাল দিয়ে পূর্ণবয়স্ক বিটল ধরুন।", "মারাত্মক হলেই কেবল স্থানীয় কৃষি কর্মকর্তার পরামর্শে কীটনাশক ব্যবহার করুন।"],
+    prevention: "অতিরিক্ত নাইট্রোজেন এড়ান, জমি আগাছামুক্ত রাখুন এবং জমির আশপাশের ঘাস-আগাছা পরিষ্কার করুন।",
+    pesticide: "শুধু স্থানীয় কৃষি অফিসের সুপারিশকৃত কীটনাশক।"
   },
   "Healthy Rice Leaf": {
     issue: "সুস্থ ধানের পাতা",
-    treatment: ["এই ছবিতে মডেল কোনো স্পষ্ট রোগ শনাক্ত করেনি।"],
-    prevention: "নিয়মিত জমি পর্যবেক্ষণ করুন এবং সুষম ফসল পরিচর্যা চালিয়ে যান।"
+    treatment: ["চিকিৎসার প্রয়োজন নেই। নিয়মিত জমি পর্যবেক্ষণ চালিয়ে যান।"],
+    prevention: "সুষম সার, ভালো নিষ্কাশন ও নিয়মিত পর্যবেক্ষণ বজায় রাখুন।",
+    pesticide: ""
   },
   "Rice Tungro": {
     issue: "ধানের টুংরো রোগ",
-    treatment: [
-      "লক্ষণ পরীক্ষা করুন এবং স্থানীয় কৃষি কর্মকর্তার কাছ থেকে নিশ্চিত হন।",
-      "বাহক পোকা ও আক্রান্ত গাছ পর্যবেক্ষণ করুন।",
-      "স্থানীয়ভাবে সুপারিশকৃত ব্যবস্থাপনা পরামর্শ অনুসরণ করুন।"
-    ],
-    prevention: "সুস্থ চারা ব্যবহার করুন এবং বাহক পোকা ও আগাছা নিয়ন্ত্রণে স্থানীয় পরামর্শ অনুসরণ করুন।"
+    treatment: ["আক্রান্ত গুছি শুরুতেই তুলে নষ্ট করুন।", "বাহক সবুজ পাতা ফড়িং নিয়ন্ত্রণ করুন (আলোর ফাঁদ, সুপারিশকৃত কীটনাশক)।", "আক্রান্ত গাছের কোনো প্রতিকার নেই — বাহক পোকা দমনে মনোযোগ দিন।"],
+    prevention: "টুংরো-প্রতিরোধী জাত লাগান এবং প্রতিবেশীদের সাথে একই সময়ে রোপণ করুন।",
+    pesticide: "শুধু বাহক পোকা দমন, স্থানীয় সুপারিশ অনুযায়ী।"
+  },
+  "Sheath Blight": {
+    issue: "খোলপোড়া রোগ (শীথ ব্লাইট)",
+    treatment: ["ঘন রোপণ ও অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন।", "মাঝে মাঝে জমির পানি শুকিয়ে গোড়ার আর্দ্রতা কমান এবং আগাছা দমন করুন।", "ক্ষত গাছের ওপরের দিকে উঠলে লেবেলের মাত্রা মেনে হেক্সাকোনাজল বা ভ্যালিডামাইসিন প্রয়োগ করুন।"],
+    prevention: "সঠিক দূরত্বে রোপণ, সুষম সার এবং ফসল কাটার পর আক্রান্ত নাড়া ও আগাছা সরানো।",
+    pesticide: "হেক্সাকোনাজল বা ভ্যালিডামাইসিন (স্থানীয়ভাবে নিশ্চিত হওয়ার পর)।"
+  },
+  "False Smut": {
+    issue: "লক্ষ্মীর গু রোগ (ফলস স্মাট)",
+    treatment: ["আক্রান্ত শীষ সাবধানে তুলে নষ্ট করুন (ঝাঁকাবেন না — স্পোর ছড়িয়ে পড়ে)।", "অতিরিক্ত নাইট্রোজেন ও দেরিতে রোপণ এড়ান; ফুল আসার সময় আর্দ্রতা কমান।", "স্থানীয়ভাবে সুপারিশ থাকলে থোড়/শীষ বের হওয়ার শুরুতে প্রোপিকোনাজল বা তামাভিত্তিক ছত্রাকনাশক স্প্রে করুন।"],
+    prevention: "পরিষ্কার বীজ ও সহনশীল জাত ব্যবহার করুন, সময়মতো রোপণ করুন এবং সুষম নাইট্রোজেন দিন।",
+    pesticide: "থোড়/শীষ অবস্থায় প্রোপিকোনাজল বা তামাভিত্তিক ছত্রাকনাশক (স্থানীয় সুপারিশ অনুযায়ী)।"
+  },
+  "Ufra": {
+    issue: "উফরা রোগ",
+    treatment: ["আক্রান্ত গাছ ও নাড়া তুলে নষ্ট করুন; অন্য জমিতে নেবেন না।", "আক্রান্ত জমি থেকে আসা সেচের পানি এড়িয়ে চলুন এবং ফসল কাটার পর জমি শুকান।", "কৃমি (নেমাটোড) দমনের জন্য স্থানীয় কৃষি সম্প্রসারণ অফিস/ব্রি-র পরামর্শ নিন; নিশ্চিত না হয়ে নিয়মিত কীটনাশক দেবেন না।"],
+    prevention: "ফসল কাটার পর গভীর চাষ দিয়ে জমি শুকান, গজানো ধান (রাটুন) ও আগাছা নষ্ট করুন, অ-পোষক ফসলের সাথে ফসলের পালা করুন।",
+    pesticide: "নেমাটোডনাশক শুধু স্থানীয় কৃষি অফিস পরামর্শ দিলে।"
+  },
+  "Bakanae (Foot Rot)": {
+    issue: "বাকানি রোগ (গোড়া পচা)",
+    treatment: ["অস্বাভাবিক লম্বা, সরু, ফ্যাকাশে চারা এবং গোড়ার গিঁটে সাদা শিকড়যুক্ত গাছ তুলে নষ্ট করুন।", "আক্রান্ত জমির বীজ পরবর্তীতে ব্যবহার করবেন না।", "আগামীতে বপনের আগে গরম পানিতে বা সুপারিশকৃত ছত্রাকনাশকে বীজ শোধন করুন।"],
+    prevention: "প্রত্যয়িত রোগমুক্ত বীজ ব্যবহার করুন এবং বপনের আগে বীজ শোধন করুন।",
+    pesticide: "স্থানীয় সুপারিশ অনুযায়ী বীজ শোধনের ছত্রাকনাশক।"
+  },
+  "Unable to identify": {
+    issue: "শনাক্ত করা যায়নি",
+    treatment: ["আক্রান্ত অংশের কাছ থেকে, দিনের আলোতে, পাতা/কাণ্ড/শীষে ফোকাস করে আবার ছবি তুলুন।", "ছবির নিচের দৃশ্যমান লক্ষণগুলো টিক দিয়ে আবার স্ক্যান করুন।", "স্থানীয় কৃষি কর্মকর্তাকে গাছটি দেখান (কৃষি কল সেন্টার ১৬১২৩)।"],
+    prevention: "",
+    pesticide: ""
   }
 };
 
@@ -1594,11 +1625,17 @@ function bnAdviceLine(line) {
 
 function bnIssue(issue) {
   if (!isBn()) return issue;
-  return (PADDY_BN[issue] && PADDY_BN[issue].issue) || ISSUE_BN[issue] || issue;
+  return (
+    (PADDY_BN[issue] && PADDY_BN[issue].issue) ||
+    ISSUE_BN[issue] ||
+    DISEASE_BN_LOWER[String(issue).toLowerCase()] ||
+    issue
+  );
 }
 
 function bnSeverity(severity) {
-  return isBn() && SEVERITY_BN[severity] ? SEVERITY_BN[severity] : severity;
+  const key = String(severity || "").toLowerCase();
+  return isBn() && SEVERITY_BN[key] ? SEVERITY_BN[key] : title(severity);
 }
 
 function bnTreatment(issue, list) {
@@ -1611,6 +1648,11 @@ function bnPrevention(issue, fallback) {
   if (!isBn()) return fallback;
   if (PADDY_BN[issue]) return PADDY_BN[issue].prevention;
   return PREVENTION_BN[issue] || fallback;
+}
+
+function bnPesticideNote(issue, fallback) {
+  if (isBn() && PADDY_BN[issue] && PADDY_BN[issue].pesticide) return PADDY_BN[issue].pesticide;
+  return fallback;
 }
 
 function bnDisclaimer(fallback) {
@@ -1777,7 +1819,7 @@ function setupEventListeners() {
 
   on(elements.menuToggleBtn, "click", () => {
     elements.dashboardScreen?.classList.toggle("sidebar-closed");
-    elements.menuToggleBtn.classList.toggle("active");
+    syncMenuButton();
   });
 
   on(elements.recommendForm, "submit", submitRecommendation);
@@ -1810,8 +1852,24 @@ function setupEventListeners() {
   });
 
   document.querySelectorAll(".side-nav button").forEach((button) => {
-    button.addEventListener("click", () => activateSection(button.dataset.section));
+    button.addEventListener("click", () => {
+      activateSection(button.dataset.section);
+
+      // On phones the sidebar is a drawer: close it after choosing a page.
+      if (window.matchMedia("(max-width: 980px)").matches) {
+        elements.dashboardScreen?.classList.add("sidebar-closed");
+        syncMenuButton();
+      }
+    });
   });
+
+  setupLeafDropzone();
+}
+
+// The hamburger turns into an X while the sidebar is OPEN.
+function syncMenuButton() {
+  const open = !elements.dashboardScreen?.classList.contains("sidebar-closed");
+  elements.menuToggleBtn?.classList.toggle("active", open);
 }
 
 
@@ -1867,6 +1925,9 @@ function applyLanguage(lang) {
     renderDashboard();
   }
 
+  renderWeatherPill();
+  replayResultPanels();
+
   if (state.scanHistory?.length) {
     renderScanHistory();
 
@@ -1885,6 +1946,30 @@ function applyLanguage(lang) {
 
   if (elements.leafPreview && !elements.leafImageInput?.files?.length) {
     resetLeafPreview();
+  }
+}
+
+// Redraw result panels (scanner, crop AI, fertilizer, weather, ...) in the
+// newly selected language.
+function replayResultPanels() {
+  try {
+    if (lastRender.scanner) renderScannerResult(lastRender.scanner);
+    if (lastRender.recommendation) renderRecommendation(lastRender.recommendation);
+    if (lastRender.fertilizer) renderFertilizerResult(lastRender.fertilizer);
+    if (lastRender.weather) renderWeather(...lastRender.weather);
+    if (lastRender.market) renderMarketList(lastRender.market);
+    if (lastRender.finance) renderFinance(lastRender.finance);
+    if (lastRender.contacts) renderContactList(lastRender.contacts);
+
+    if (lastRender.calendar) {
+      const { cropName, plantingDate } = lastRender.calendar;
+      renderCalendarResult(cropName, generateCropCalendar(cropName, plantingDate), plantingDate);
+    }
+
+    renderHotlineList();
+    renderSubsidy();
+  } catch (error) {
+    console.warn("Language refresh failed:", error);
   }
 }
 
@@ -2013,7 +2098,7 @@ function togglePassword() {
   elements.passwordInput.type = isPassword ? "text" : "password";
 
   if (elements.togglePasswordBtn) {
-    elements.togglePasswordBtn.textContent = isPassword ? "-" : "o";
+    elements.togglePasswordBtn.textContent = isPassword ? "\u{1F648}" : "\u{1F441}";
   }
 }
 
@@ -2126,18 +2211,9 @@ function logout() {
 
   localStorage.removeItem("smartAgroToken");
 
-  elements.dashboardScreen?.classList.add("hidden");
-  elements.heroScreen?.classList.remove("hidden");
-  elements.infoSection?.classList.remove("hidden");
-  elements.showcaseSection?.classList.remove("hidden");
-
-  if (elements.profileChipName) {
-    elements.profileChipName.textContent = "";
-  }
-
-  if (elements.profileChipSub) {
-    elements.profileChipSub.textContent = "";
-  }
+  // Reload so no data from this account (scan history, results, forms)
+  // can still be on screen when somebody else signs in.
+  window.location.reload();
 }
 
 
@@ -2183,6 +2259,8 @@ async function boot() {
     elements.dashboardScreen?.classList.add("sidebar-closed");
   }
 
+  syncMenuButton();
+
   if (!state.token) return;
 
   try {
@@ -2194,10 +2272,13 @@ async function boot() {
 
     await loadDashboard();
   } catch (error) {
-    localStorage.removeItem("smartAgroToken");
-
-    state.token = null;
-    state.user = null;
+    // Only drop the session when the server says it is invalid. A network
+    // error / server restart must not log the farmer out.
+    if (error.status === 401 || error.status === 404) {
+      localStorage.removeItem("smartAgroToken");
+      state.token = null;
+      state.user = null;
+    }
   }
 }
 
@@ -2236,7 +2317,10 @@ function populateCropSelect() {
     elements.fertilizerCropSelect,
     elements.calendarCropSelect
   ].forEach((select) => {
-    if (select) select.innerHTML = optionsHtml;
+    if (!select) return;
+    const previous = select.value;
+    select.innerHTML = optionsHtml;
+    if (previous) select.value = previous;
   });
 }
 
@@ -2248,6 +2332,8 @@ function populateCropSelect() {
 async function loadDashboard() {
   state.dashboard = await api("/api/dashboard");
   renderDashboard();
+
+  if (!state.liveWeather) loadTopbarWeather();
 }
 
 function emptyState(key) {
@@ -2259,13 +2345,7 @@ function renderDashboard() {
 
   if (!dashboard) return;
 
-  if (elements.weatherPill && dashboard.weather) {
-    elements.weatherPill.textContent = `☀️ ${dashboard.weather.temperature}°C | ${
-      dashboard.weather.humidity
-    }% ${isBn() ? "আর্দ্রতা" : "humidity"} | ${bnWeatherCondition(
-      dashboard.weather.condition
-    )}`;
-  }
+  renderWeatherPill();
 
   const metrics = [
     ["🌾", t("metricFields"), dashboard.metrics?.fields ?? 0],
@@ -2344,6 +2424,71 @@ function renderDashboard() {
 
   bindDashboardButtons();
 }
+
+// Real weather for the farmer's location (Open-Meteo, no API key).
+const WEATHER_CODE_TEXT = [
+  [[0], "Clear sky", "পরিষ্কার আকাশ"],
+  [[1, 2, 3], "Partly cloudy", "আংশিক মেঘলা"],
+  [[45, 48], "Fog", "কুয়াশা"],
+  [[51, 53, 55, 56, 57], "Drizzle", "গুঁড়ি গুঁড়ি বৃষ্টি"],
+  [[61, 63, 65, 66, 67, 80, 81, 82], "Rain", "বৃষ্টি"],
+  [[71, 73, 75, 77, 85, 86], "Snow", "তুষার"],
+  [[95, 96, 99], "Thunderstorm", "বজ্রসহ বৃষ্টি"]
+];
+
+function weatherCodeText(code) {
+  const hit = WEATHER_CODE_TEXT.find(([codes]) => codes.includes(code));
+  return hit ? (isBn() ? hit[2] : hit[1]) : "";
+}
+
+function renderWeatherPill() {
+  if (!elements.weatherPill) return;
+
+  const w = state.liveWeather;
+
+  if (!w) {
+    elements.weatherPill.textContent = t("weatherLoading");
+    return;
+  }
+
+  const condition = weatherCodeText(w.code);
+
+  elements.weatherPill.textContent = `☀️ ${w.temperature}°C | ${w.humidity}% ${
+    isBn() ? "আর্দ্রতা" : "humidity"
+  }${condition ? ` | ${condition}` : ""}`;
+}
+
+async function loadTopbarWeather() {
+  const searchName = (state.user?.location || "").split(",")[0].trim() || "Dhaka";
+
+  try {
+    const geoUrl = (name) =>
+      `https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name=${encodeURIComponent(name)}`;
+
+    let geo = await (await fetch(geoUrl(searchName))).json();
+    if (!geo?.results?.length && searchName !== "Dhaka") geo = await (await fetch(geoUrl("Dhaka"))).json();
+
+    const place = geo?.results?.[0];
+    if (!place) return;
+
+    const forecast = await (await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto`
+    )).json();
+
+    const current = forecast?.current;
+    if (!current) return;
+
+    state.liveWeather = {
+      temperature: Math.round(current.temperature_2m),
+      humidity: Math.round(current.relative_humidity_2m),
+      code: current.weather_code
+    };
+    renderWeatherPill();
+  } catch (error) {
+    console.warn("Topbar weather failed:", error);
+  }
+}
+
 
 function bindDashboardButtons() {
   document.querySelectorAll("[data-complete-task]").forEach((button) => {
@@ -2583,6 +2728,7 @@ async function submitRecommendation(event) {
 
 function renderRecommendation(result) {
   if (!result) return;
+  lastRender.recommendation = result;
 
   const primary = result.primary || {};
 
@@ -2641,17 +2787,25 @@ function renderRecommendation(result) {
 // ============================================================
 
 let leafPreviewUrl = null;
+let currentLeafFile = null; // selected photo mone rakhe
 
 function previewLeafImage() {
-  const file = elements.leafImageInput?.files?.[0];
+  const input = elements.leafImageInput;
+  const file = input?.files?.[0];
 
-  // Remove old preview URL
-  if (leafPreviewUrl) {
-    URL.revokeObjectURL(leafPreviewUrl);
-    leafPreviewUrl = null;
+  // File dialog "Cancel" korle browser input khali kore dey.
+  // Tokhon purono photo-i abar input-e ferot dao, preview-o thakbe.
+  if (!file && currentLeafFile) {
+    try {
+      const dt = new DataTransfer();
+      dt.items.add(currentLeafFile);
+      input.files = dt.files;
+    } catch (error) {
+      // purono browser: kichu korar nai
+    }
+    return;
   }
 
-  // No file
   if (!file) {
     resetLeafPreview();
     return;
@@ -2664,8 +2818,8 @@ function previewLeafImage() {
         ? "দয়া করে একটি সঠিক ছবির ফাইল নির্বাচন করুন।"
         : "Please select a valid image file."
     );
-
-    elements.leafImageInput.value = "";
+    input.value = "";
+    currentLeafFile = null;
     resetLeafPreview();
     return;
   }
@@ -2677,24 +2831,22 @@ function previewLeafImage() {
         ? "ছবির আকার সর্বোচ্চ ১০ MB হতে পারে।"
         : "Image size must be less than 10 MB."
     );
-
-    elements.leafImageInput.value = "";
+    input.value = "";
+    currentLeafFile = null;
     resetLeafPreview();
     return;
   }
 
-  // Create preview
+  // Notun valid photo: purono preview URL chhere dao
+  if (leafPreviewUrl) URL.revokeObjectURL(leafPreviewUrl);
+
+  currentLeafFile = file;
   leafPreviewUrl = URL.createObjectURL(file);
 
   if (elements.leafPreview) {
     elements.leafPreview.innerHTML = `
-      <img
-        src="${leafPreviewUrl}"
-        alt="Leaf preview"
-        class="leaf-preview-image"
-      />
+      <img src="${leafPreviewUrl}" alt="Leaf preview" class="leaf-preview-image" />
     `;
-
     elements.leafPreview.classList.add("show");
   }
 }
@@ -2714,26 +2866,81 @@ function resetLeafPreview() {
 // LEAF SCANNER
 // ============================================================
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+// Shrinks the photo (max 1280 px, JPEG) before upload. Phone photos are often
+// 5-10 MB, which with base64 overhead could exceed the server's JSON limit.
+// Falls back to the original file if the browser cannot decode it.
+async function prepareImage(file) {
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const scale = Math.min(1, 1280 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
 
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      // Strip the "data:image/jpeg;base64," prefix — the API wants raw base64.
-      const commaIndex = result.indexOf(",");
-      resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result);
-    };
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+    return { base64: dataUrl.slice(dataUrl.indexOf(",") + 1), mimeType: "image/jpeg" };
+  } catch (error) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        const comma = result.indexOf(",");
+        resolve({ base64: comma >= 0 ? result.slice(comma + 1) : result, mimeType: file.type || "image/jpeg" });
+      };
+      reader.onerror = () => reject(new Error("File read failed"));
+      reader.readAsDataURL(file);
+    });
+  }
+}
 
-    reader.onerror = () => reject(new Error("File read failed"));
-    reader.readAsDataURL(file);
-  });
+// ---------- scan animation + messages ----------
+let scanSafetyTimer = null;
+
+function stopScanBeam() {
+  clearTimeout(scanSafetyTimer);
+  elements.leafPreview?.classList.remove("scanning");
+  elements.leafPreview?.querySelector(".scan-beam")?.remove();
+}
+
+function startScanBeam() {
+  const box = elements.leafPreview;
+  if (!box) return;
+
+  box.classList.add("scanning");
+
+  if (!box.querySelector(".scan-beam")) {
+    const beam = document.createElement("div");
+    beam.className = "scan-beam";
+    box.appendChild(beam);
+  }
+
+  // Safety: stop the animation if no result ever arrives.
+  clearTimeout(scanSafetyTimer);
+  scanSafetyTimer = setTimeout(stopScanBeam, 45000);
 }
 
 function showScannerMessage(en, bn) {
-  elements.scannerResult.innerHTML = `
-    <div class="empty-state">${escapeHtml(isBn() ? bn : en)}</div>
-  `;
+  delete lastRender.scanner; // a new scan / message replaces the old result
+
+  const text = isBn() ? bn : en;
+
+  if (/^Analyzing/i.test(en)) {
+    startScanBeam();
+    elements.scannerResult.innerHTML = `
+      <div class="sc-loading">
+        <div class="sc-orbit"></div>
+        <strong>${escapeHtml(text)}</strong>
+        <span>${escapeHtml(
+          isBn() ? "রোগ ও পোকার লক্ষণ মিলিয়ে দেখা হচ্ছে" : "Matching leaf patterns against known conditions"
+        )}</span>
+      </div>`;
+    return;
+  }
+
+  stopScanBeam();
+  elements.scannerResult.innerHTML = `<div class="empty-state">${escapeHtml(text)}</div>`;
 }
 
 async function submitScanner(event) {
@@ -2775,11 +2982,14 @@ async function submitScanner(event) {
 
   const formData = new FormData(elements.scannerForm);
 
-  // Convert the image to base64 so the vision model can actually see it.
+  // Convert the image to base64 so the model can actually see it.
   let imageBase64;
+  let mimeType = file.type || "image/jpeg";
 
   try {
-    imageBase64 = await fileToBase64(file);
+    const prepared = await prepareImage(file);
+    imageBase64 = prepared.base64;
+    mimeType = prepared.mimeType;
   } catch (error) {
     showScannerMessage(
       "Could not read the image file. Please try again.",
@@ -2791,7 +3001,7 @@ async function submitScanner(event) {
   const scannerData = {
     crop: formData.get("crop") || "",
     imageBase64,
-    mimeType: file.type || "image/jpeg",
+    mimeType,
     imageName: file.name,
     notes: formData.get("notes") || "",
     symptoms: formData.getAll("symptoms")
@@ -2817,6 +3027,7 @@ async function submitScanner(event) {
     loadScanHistory();
   } catch (error) {
     console.error("Leaf scanner error:", error);
+    stopScanBeam();
 
     elements.scannerResult.innerHTML = `
       <div class="empty-state">
@@ -2844,6 +3055,10 @@ function diseaseLabel(name) {
 const PADDY_MODEL_VAL_ACCURACY = null;
 
 const BAND_COLOR = { high: "#21925c", mid: "#d29c3d", low: "#c24131" };
+
+function isAiSource(source) {
+  return source === "paddy-ml" || source === "vision-ai";
+}
 
 function safeBn(fn, fallback) {
   try { return fn(); } catch (error) { return fallback; }
@@ -2890,7 +3105,7 @@ function renderScanStats(scans) {
 
   const n = scans.length;
   const avg = Math.round(scans.reduce((sum, s) => sum + clampConf(s.confidence), 0) / n);
-  const modelCount = scans.filter((s) => s.source === "paddy-ml").length;
+  const modelCount = scans.filter((s) => isAiSource(s.source)).length;
   const lowCount = scans.filter((s) => confBand(clampConf(s.confidence), s.lowConfidence) === "low").length;
 
   const counts = {};
@@ -2943,7 +3158,7 @@ function renderScanHistoryCard(scan) {
   const conf = clampConf(scan.confidence);
   const band = confBand(conf, scan.lowConfidence);
   const issue = safeBn(() => bnIssue(scan.issue), scan.issue);
-  const isModel = scan.source === "paddy-ml";
+  const isModel = isAiSource(scan.source);
 
   const photo = scan.imageUrl
     ? `<img src="${escapeHtml(scan.imageUrl)}" alt="Scanned leaf" loading="lazy" />`
@@ -2986,7 +3201,7 @@ function renderScanReport(scan) {
   const conf = clampConf(scan.confidence);
   const band = confBand(conf, scan.lowConfidence);
   const color = BAND_COLOR[band];
-  const isModel = scan.source === "paddy-ml";
+  const isModel = isAiSource(scan.source);
 
   const issue = safeBn(() => bnIssue(scan.issue), scan.issue);
   const treatment = safeBn(() => bnTreatment(scan.issue, scan.treatment), scan.treatment || []);
@@ -3010,7 +3225,7 @@ function renderScanReport(scan) {
   if (symptoms.length) inputParts.push(`${symptoms.length} ${t("inSymptoms")}`);
   if (scan.notes) inputParts.push(t("inNote"));
 
-  const valAcc = isModel
+  const valAcc = scan.source === "paddy-ml"
     ? (PADDY_MODEL_VAL_ACCURACY != null ? `${PADDY_MODEL_VAL_ACCURACY}%` : t("notRecorded"))
     : t("notApplicable");
 
@@ -3080,7 +3295,7 @@ function renderScanReport(scan) {
           <b class="mk" style="left:${conf}%"></b>
         </div>
         <small>${escapeHtml(t("bandScaleNote"))}</small>`)}
-      ${row(t("sourceLabel"), escapeHtml(t(isModel ? "sourceModelDesc" : "sourceKeywordDesc")))}
+      ${row(t("sourceLabel"), escapeHtml(t(scan.source === "vision-ai" ? "sourceVisionDesc" : isModel ? "sourceModelDesc" : "sourceKeywordDesc")))}
       ${row(t("marginLabel"), escapeHtml(marginText))}
       ${row(t("valAccLabel"), escapeHtml(valAcc))}
       ${row(t("inputsLabel"), escapeHtml(inputParts.join(" + ") || "-"))}
@@ -3125,6 +3340,7 @@ function renderScanReport(scan) {
     <section class="rp-card">
       <h4>${escapeHtml(t("preventionHeading"))}</h4>
       <p>${escapeHtml(prevention)}</p>
+      ${scan.pesticideNote ? `<p><strong>${escapeHtml(t("pesticideNoteLabel"))}</strong> ${escapeHtml(bnPesticideNote(scan.issue, scan.pesticideNote))}</p>` : ""}
     </section>` : ""}
 
     ${risks ? `
@@ -3148,127 +3364,150 @@ function renderScanReport(scan) {
     ?.addEventListener("click", () => window.print());
 }
 
+function severityClass(severity) {
+  const s = String(severity || "").toLowerCase();
+  if (s === "none" || s === "low") return "ok";
+  if (s.includes("high")) return "high";
+  if (s.includes("medium")) return "mid";
+  return "unk";
+}
+
+function ringColor(cls) {
+  return { ok: "#3ddc84", mid: "#ffb84d", high: "#ff6b5b", unk: "#8fb5a4" }[cls];
+}
+
 function renderScannerResult(result) {
   if (!elements.scannerResult) return;
+  stopScanBeam();
+  lastRender.scanner = result;
 
-  const cropRisks = result.cropRisks || {};
-  const pests = cropRisks.pests || [];
-  const diseases = cropRisks.diseases || [];
+  const issue = bnIssue(result.issue);
+  const severityText = bnSeverity(result.severity);
+  const treatment = bnTreatment(result.issue, result.treatment) || [];
+  const prevention = bnPrevention(result.issue, result.prevention);
+  const disclaimer = bnDisclaimer(result.disclaimer);
+
+  const confidence = Math.max(0, Math.min(100, Number(result.confidence) || 0));
+  const sevCls = result.lowConfidence ? "unk" : severityClass(result.severity);
+
+  const others = (result.predictions || []).slice(1, 4);
   const pestHints = result.pestHints || [];
-  const visibleSymptoms = result.visibleSymptoms || [];
-  const treatment = bnTreatment(result.issue, result.treatment);
+  const cropRisks = result.cropRisks || {};
+  const tags = [
+    ...(cropRisks.pests || []).map(pestLabel),
+    ...(cropRisks.diseases || []).map(diseaseLabel)
+  ];
+
+  const L = isBn()
+    ? { conf: "নির্ভরতা", treat: "করণীয়", prevent: "প্রতিরোধ", other: "অন্য সম্ভাবনা", pest: "কীটনাশক তথ্য", sev: "ঝুঁকি", hints: "সম্ভাব্য পোকার মিল", low: "ফলাফল অনিশ্চিত — ভালো আলোতে আবার ছবি তুলুন।" }
+    : { conf: "match", treat: "What to do", prevent: "Prevention", other: "Other possibilities", pest: "Pesticide note", sev: "Severity", hints: "Possible pest matches", low: "Low confidence — retake the photo in good light." };
 
   elements.scannerResult.innerHTML = `
-    <section class="diagnosis-card">
+    <section class="sc-result">
 
-      <div class="diagnosis-head">
-        <span>
-          ${escapeHtml(bnName(result.crop))}
-          |
-          ${escapeHtml(result.confidence)}% ${escapeHtml(t("confidenceWord"))}
-          |
-          ${escapeHtml(bnSeverity(result.severity))}
-        </span>
-
-        <h3>${escapeHtml(bnIssue(result.issue))}</h3>
+      <div class="sc-head">
+        <div class="sc-ring" style="--p:${confidence};--c:${ringColor(sevCls)}">
+          <b>${escapeHtml(Math.round(confidence))}<small>%</small></b>
+          <span>${escapeHtml(L.conf)}</span>
+        </div>
+        <div class="sc-id">
+          <p class="sc-crop">${escapeHtml(bnName(result.crop))}</p>
+          <h3>${escapeHtml(issue)}</h3>
+          <span class="sc-sev ${sevCls}">${escapeHtml(L.sev)}: ${escapeHtml(severityText)}</span>
+        </div>
       </div>
 
-      <div class="tag-row">
-        ${pests
-          .map((item) => `<span class="tag">${escapeHtml(pestLabel(item))}</span>`)
-          .join("")}
-
-        ${diseases
-          .map((item) => `<span class="tag">${escapeHtml(diseaseLabel(item))}</span>`)
-          .join("")}
-      </div>
+      ${result.lowConfidence ? `<p class="sc-note">${escapeHtml(L.low)}</p>` : ""}
 
       ${
-        result.reasoning || visibleSymptoms.length
-          ? `<article class="crop-card">
-              <strong>${escapeHtml(t("observedHeading"))}</strong>
-
-              ${
-                visibleSymptoms.length
-                  ? `<div class="tag-row">
-                      ${visibleSymptoms
-                        .map((item) => `<span class="tag">${escapeHtml(item)}</span>`)
-                        .join("")}
-                    </div>`
-                  : ""
-              }
-
-              ${result.reasoning ? `<p>${escapeHtml(result.reasoning)}</p>` : ""}
+        treatment.length
+          ? `<article class="sc-card">
+              <h4>${escapeHtml(L.treat)}</h4>
+              <ol class="sc-steps">${treatment.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
             </article>`
           : ""
       }
 
-      <article class="crop-card">
-        <strong>${escapeHtml(t("treatmentHeading"))}</strong>
+      ${
+        prevention
+          ? `<article class="sc-card">
+              <h4>${escapeHtml(L.prevent)}</h4>
+              <p>${escapeHtml(prevention)}</p>
+              ${result.pesticideNote ? `<p><strong>${escapeHtml(L.pest)}:</strong> ${escapeHtml(bnPesticideNote(result.issue, result.pesticideNote))}</p>` : cropRisks.pesticide ? `<p><strong>${escapeHtml(L.pest)}:</strong> ${escapeHtml(bnPesticide(result.crop, cropRisks.pesticide))}</p>` : ""}
+            </article>`
+          : ""
+      }
 
-        <ul class="advice-list">
-          ${treatment.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
-        </ul>
-      </article>
-
-      <article class="crop-card">
-        <strong>${escapeHtml(t("preventionHeading"))}</strong>
-
-        <p>${escapeHtml(bnPrevention(result.issue, result.prevention))}</p>
-
-        ${
-          result.cropRisks
-            ? `<p>
-                <strong>${escapeHtml(t("pesticideNoteLabel"))}</strong>
-                ${escapeHtml(bnPesticide(result.crop, result.cropRisks.pesticide))}
-              </p>`
-            : ""
-        }
-      </article>
+      ${
+        tags.length
+          ? `<article class="sc-card"><div class="sc-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div></article>`
+          : ""
+      }
 
       ${
         pestHints.length
-          ? `<article class="crop-card">
-              <strong>${escapeHtml(t("possiblePestMatches"))}</strong>
-
-              ${pestHints
-                .map(
-                  (pest) => `
-                    <p>
-                      <strong>${escapeHtml(pestLabel(pest.pest))}:</strong>
-                      ${escapeHtml(bnPestGuideField(pest.pest, "control", pest.control))}
-                      ${escapeHtml(bnPestGuideField(pest.pest, "pesticide", pest.pesticide))}
-                    </p>
-                  `
-                )
-                .join("")}
+          ? `<article class="sc-card">
+              <h4>${escapeHtml(L.hints)}</h4>
+              ${pestHints.map((pest) => `
+                <p><strong>${escapeHtml(pestLabel(pest.pest))}:</strong>
+                ${escapeHtml(bnPestGuideField(pest.pest, "control", pest.control))}
+                ${escapeHtml(bnPestGuideField(pest.pest, "pesticide", pest.pesticide))}</p>`).join("")}
             </article>`
           : ""
       }
 
       ${
-        result.predictions?.length > 1
-          ? `<article class="crop-card">
-              <strong>${escapeHtml(isBn() ? "অন্যান্য সম্ভাবনা" : "Other possibilities")}</strong>
-              <div class="tag-row">
-                ${result.predictions
-                  .slice(1, 3)
-                  .map(
-                    (p) =>
-                      `<span class="tag">${escapeHtml(diseaseLabel(p.issue))} ${escapeHtml(
-                        Math.round(p.confidence)
-                      )}%</span>`
-                  )
-                  .join("")}
+        others.length
+          ? `<article class="sc-card">
+              <h4>${escapeHtml(L.other)}</h4>
+              <div class="sc-bars">
+                ${others.map((p) => {
+                  const w = Math.max(2, Math.min(100, Math.round(p.confidence)));
+                  return `<div class="sc-bar">
+                    <div><span>${escapeHtml(bnIssue(p.issue || p.label))}</span><em>${w}%</em></div>
+                    <div class="sc-track"><i style="--w:${w}%"></i></div>
+                  </div>`;
+                }).join("")}
               </div>
             </article>`
           : ""
       }
 
-      <p>${escapeHtml(bnDisclaimer(result.disclaimer))}</p>
+      <p class="sc-note">${escapeHtml(disclaimer)}</p>
 
     </section>
   `;
+}
+
+// Drag & drop upload.
+function setupLeafDropzone() {
+  const zone = document.querySelector(".leaf-upload");
+  const input = elements.leafImageInput;
+  if (!zone || !input) return;
+
+  ["dragenter", "dragover"].forEach((evt) =>
+    zone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      zone.classList.add("drag");
+    })
+  );
+
+  ["dragleave", "drop"].forEach((evt) =>
+    zone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      zone.classList.remove("drag");
+    })
+  );
+
+  zone.addEventListener("drop", (e) => {
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
 }
 
 
@@ -3547,6 +3786,7 @@ async function loadMarketPrices() {
 
 function renderMarketList(items) {
   if (!elements.marketList) return;
+  lastRender.market = items;
 
   if (!items.length) {
     elements.marketList.innerHTML = emptyState("noMarketPricesYet");
@@ -3626,6 +3866,7 @@ async function submitFertilizerCalc(event) {
 
 function renderFertilizerResult(result) {
   if (!elements.fertilizerResult || !result) return;
+  lastRender.fertilizer = result;
 
   const card = (name, key) => `
     <article class="crop-card">
@@ -3775,6 +4016,7 @@ function buildWeatherAdvisories(current, daily) {
 
 function renderWeather(placeName, forecast) {
   if (!elements.weatherAlertsContent) return;
+  lastRender.weather = [placeName, forecast];
 
   const current = forecast?.current || {};
   const daily = forecast?.daily || {};
@@ -3853,6 +4095,7 @@ async function loadFinance() {
 }
 
 function renderFinance(items) {
+  lastRender.finance = items;
   const sumOf = (type) =>
     items
       .filter((item) => item.type === type)
@@ -3962,12 +4205,14 @@ function generateCropCalendar(cropName, plantingDateStr) {
     (item) => item.name.toLowerCase() === String(cropName).toLowerCase()
   );
 
-  const durationDays = parseDurationDays(crop?.duration) || 100;
-  const plantingDate = new Date(plantingDateStr);
+  const perennial = /perennial/i.test(crop?.duration || "");
+  const durationDays = parseDurationDays(crop?.duration) || (perennial ? 365 : 100);
+  // Parse as UTC and add days in UTC so DST / time zones cannot shift the date.
+  const plantingDate = new Date(`${plantingDateStr}T00:00:00Z`);
 
   return CALENDAR_MILESTONES.map((step) => {
     const date = new Date(plantingDate.getTime());
-    date.setDate(date.getDate() + Math.round(durationDays * step.pct));
+    date.setUTCDate(date.getUTCDate() + Math.round(durationDays * step.pct));
 
     return {
       date: date.toISOString().slice(0, 10),
@@ -3985,11 +4230,12 @@ function submitCalendar(event) {
   if (!formData.crop || !formData.plantingDate) return;
 
   const milestones = generateCropCalendar(formData.crop, formData.plantingDate);
-  renderCalendarResult(formData.crop, milestones);
+  renderCalendarResult(formData.crop, milestones, formData.plantingDate);
 }
 
-function renderCalendarResult(cropName, milestones) {
+function renderCalendarResult(cropName, milestones, plantingDate) {
   if (!elements.calendarResult) return;
+  if (plantingDate) lastRender.calendar = { cropName, plantingDate };
 
   elements.calendarResult.innerHTML = `
     <div class="result-hero">
@@ -4108,6 +4354,7 @@ function renderHotlineList() {
 
 function renderContactList(items) {
   if (!elements.contactList) return;
+  lastRender.contacts = items;
 
   if (!items.length) {
     elements.contactList.innerHTML = emptyState("noContactsYet");
@@ -4275,9 +4522,16 @@ async function api(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(
+    // An expired/invalid session anywhere in the app -> back to the login screen.
+    if (response.status === 401 && state.token && !path.startsWith("/api/auth/login")) {
+      logout();
+    }
+
+    const error = new Error(
       payload.message || payload.error || `Request failed (${response.status})`
     );
+    error.status = response.status;
+    throw error;
   }
 
   return payload;
@@ -4290,94 +4544,3 @@ async function api(path, options = {}) {
 
 setupEventListeners();
 boot();
-// =========================================================
-// LANGUAGE SWITCH FIX
-// Problem: kaj korar por jei result/list ashe (scanner, crop AI, fertilizer,
-// calendar, weather, market, finance, contacts, subsidy), language button
-// chaple oigulo purono bhasha-tei thake.
-// Karon: applyLanguage() shudhu dashboard re-render kore, baki result na.
-//
-// Fix: app.js-er EKDOM SHESHE, ei duita line-er THIK AGE paste koro:
-//     setupEventListeners();
-//     boot();
-// =========================================================
-
-(function enableLiveLanguageSwitch() {
-  const last = {}; // function name -> last arguments
-
-  // Kono render function call hole tar arguments mone rakho
-  function remember(fnName) {
-    const original = globalThis[fnName];
-    if (typeof original !== "function") return;
-
-    globalThis[fnName] = function (...args) {
-      last[fnName] = args;
-      return original.apply(this, args);
-    };
-  }
-
-  [
-    "renderScannerResult",
-    "renderRecommendation",
-    "renderFertilizerResult",
-    "renderCalendarResult",
-    "renderWeather",
-    "renderMarketList",
-    "renderFinance",
-    "renderContactList"
-  ].forEach(remember);
-
-  // Notun scan shuru hole purono result bhule jao
-  const originalShowScannerMessage = globalThis.showScannerMessage;
-  if (typeof originalShowScannerMessage === "function") {
-    globalThis.showScannerMessage = function (...args) {
-      delete last.renderScannerResult;
-      return originalShowScannerMessage.apply(this, args);
-    };
-  }
-
-  // Language change hole mone rakha result abar nutun bhashay draw koro
-  const originalApplyLanguage = globalThis.applyLanguage;
-
-  globalThis.applyLanguage = function (lang) {
-    originalApplyLanguage.call(this, lang);
-
-    const replay = (fnName, args) => {
-      try {
-        globalThis[fnName](...args);
-      } catch (error) {
-        console.warn("Language refresh failed for", fnName, error);
-      }
-    };
-
-    // Scanner, Crop AI, Fertilizer, Weather, Market, Finance, Contacts
-    [
-      "renderScannerResult",
-      "renderRecommendation",
-      "renderFertilizerResult",
-      "renderWeather",
-      "renderMarketList",
-      "renderFinance",
-      "renderContactList"
-    ].forEach((fnName) => {
-      if (last[fnName]) replay(fnName, last[fnName]);
-    });
-
-    // Calendar: milestone-er title bhasha onujayi toiri hoy, tai notun kore generate koro
-    if (last.renderCalendarResult) {
-      const [cropName, milestones] = last.renderCalendarResult;
-      const plantingDate = milestones?.[0]?.date;
-
-      if (plantingDate) {
-        replay("renderCalendarResult", [
-          cropName,
-          generateCropCalendar(cropName, plantingDate)
-        ]);
-      }
-    }
-
-    // Static section gulo
-    if (typeof renderHotlineList === "function") renderHotlineList();
-    if (typeof renderSubsidy === "function") renderSubsidy();
-  };
-})();

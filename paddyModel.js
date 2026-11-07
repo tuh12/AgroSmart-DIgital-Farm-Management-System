@@ -1,107 +1,212 @@
-
 const { isLocalModelAvailable, predictLocal, loadModel } = require("./paddyLocal");
 
 const ML_API_URL = process.env.PADDY_ML_URL || "http://127.0.0.1:5001";
 
+// Below this the model is guessing; ask for a better photo instead of naming a disease.
+const MIN_CONFIDENCE = 40;
+// Below this a result is shown with a "low confidence" warning.
+const LOW_CONFIDENCE = 60;
+
+// Keys are model labels (labels.json / dataset folder names).
 const DISEASE_INFO = {
   bacterial_leaf_blight: {
     issue: "Bacterial Leaf Blight",
+    severity: "High",
     treatment: [
-      "Inspect affected leaves and monitor whether symptoms are spreading.",
-      "Avoid excessive nitrogen fertilizer and manage field water appropriately.",
-      "Consult a local agriculture officer before applying any chemical."
+      "Drain the field and avoid excess standing water.",
+      "Remove and destroy severely infected leaves/plants.",
+      "Use copper-based bactericide where locally approved."
     ],
-    prevention: "Use healthy seed, maintain balanced fertilizer application, and inspect the field regularly."
+    prevention: "Use certified disease-free seed, resistant varieties and balanced nitrogen.",
+    pesticide: "Copper-based bactericide where locally approved."
   },
-
   bacterial_leaf_streak: {
     issue: "Bacterial Leaf Streak",
+    severity: "Medium",
     treatment: [
-      "Inspect affected plants and monitor disease progression.",
-      "Avoid unnecessary movement of contaminated plant material.",
-      "Seek advice from a local agriculture officer if symptoms spread."
+      "Avoid excess nitrogen and reduce leaf wetness.",
+      "Remove and destroy heavily infected leaves.",
+      "Use copper-based bactericide where locally approved."
     ],
-    prevention: "Use healthy seed and keep the field and farming equipment clean."
+    prevention: "Use clean seed and resistant varieties; avoid working in wet fields.",
+    pesticide: "Copper-based bactericide where locally approved."
   },
-
   bacterial_panicle_blight: {
     issue: "Bacterial Panicle Blight",
+    severity: "High",
     treatment: [
-      "Inspect affected panicles and confirm the diagnosis with an agriculture officer.",
-      "Avoid excessive nitrogen fertilizer and maintain appropriate crop care.",
-      "Do not apply a pesticide or bactericide without locally approved guidance."
+      "No reliable cure once infected - remove badly affected plants.",
+      "Avoid excess nitrogen and keep water management steady.",
+      "Consult the local agriculture officer before any bactericide use."
     ],
-    prevention: "Use healthy seed, apply balanced fertilizer, and regularly monitor panicles during crop development."
+    prevention: "Use certified clean seed, avoid excess nitrogen, and plant on time to avoid heat stress at flowering.",
+    pesticide: "Consult the local extension officer."
   },
-
   blast: {
     issue: "Rice Blast",
+    severity: "High",
     treatment: [
-      "Inspect affected leaves and panicles for spreading lesions.",
-      "Avoid excessive nitrogen fertilizer and maintain balanced crop nutrition.",
-      "Consult a local agriculture officer about suitable locally approved control measures."
+      "Remove and destroy infected tillers/panicles.",
+      "Avoid excess nitrogen; apply balanced fertilizer.",
+      "Apply tricyclazole or isoprothiolane after confirmation, following label dose."
     ],
-    prevention: "Use resistant varieties where available, healthy seed, and balanced fertilizer."
+    prevention: "Use blast-resistant varieties; avoid late/dense planting and water stress.",
+    pesticide: "Tricyclazole or isoprothiolane (after local expert confirmation)."
   },
-
   brown_spot: {
     issue: "Brown Spot",
+    severity: "Medium",
     treatment: [
-      "Check crop nutrition and soil conditions.",
-      "Maintain balanced fertilizer and appropriate water management.",
-      "Seek local agricultural advice if symptoms continue to spread."
+      "Improve soil fertility, especially potassium.",
+      "Destroy infected straw/stubble after harvest.",
+      "Apply mancozeb or propiconazole if infection is severe."
     ],
-    prevention: "Use healthy seed and maintain balanced crop nutrition."
+    prevention: "Use healthy treated seed and balanced fertilizer, particularly potash.",
+    pesticide: "Mancozeb or propiconazole (only if severe)."
   },
-
   dead_heart: {
     issue: "Dead Heart",
+    severity: "High",
     treatment: [
-      "Inspect stems and look for signs of stem-borer larvae.",
-      "Confirm whether insect damage is present before choosing a control method.",
-      "Ask a local agriculture officer about appropriate management."
+      "Remove and destroy affected tillers and egg masses.",
+      "Use light traps to monitor/catch moths.",
+      "Apply chlorantraniliprole or cartap hydrochloride under local guidance."
     ],
-    prevention: "Monitor the field regularly and manage crop residues and weeds appropriately."
+    prevention: "Remove stubble after harvest, avoid excess nitrogen, plant on time with neighbours.",
+    pesticide: "Chlorantraniliprole or cartap hydrochloride (as locally recommended)."
   },
-
   downy_mildew: {
     issue: "Downy Mildew",
+    severity: "Low-Medium",
     treatment: [
-      "Inspect the affected plants to confirm the diagnosis.",
-      "Maintain suitable field and crop management practices.",
-      "Consult an agriculture officer before using disease-control chemicals."
+      "Improve drainage and avoid waterlogged nursery beds.",
+      "Remove and destroy heavily infected plants.",
+      "Use a recommended fungicide (e.g. metalaxyl + mancozeb) if spread continues."
     ],
-    prevention: "Use healthy seed and regularly monitor crop health and field conditions."
+    prevention: "Use well-drained seedbeds and resistant varieties; avoid dense planting.",
+    pesticide: "Metalaxyl + mancozeb (only if locally recommended)."
   },
-
   hispa: {
     issue: "Rice Hispa",
+    severity: "Medium",
     treatment: [
-      "Check leaves for adult beetles and feeding damage.",
-      "Monitor the extent of infestation before selecting a control method.",
-      "Consult a local agriculture officer if damage is widespread."
+      "Clip and destroy affected leaf tips in nursery/early stage.",
+      "Hand-pick adult beetles or use a net in small fields.",
+      "Use insecticide only if severe, as advised by the local DAE officer."
     ],
-    prevention: "Inspect the field regularly and manage weeds and crop residues appropriately."
+    prevention: "Avoid excess nitrogen, keep the field weed-free, remove grassy hosts near the field.",
+    pesticide: "Use only insecticides recommended by the local agriculture office."
   },
-
   normal: {
     issue: "Healthy Rice Leaf",
-    treatment: [
-      "No clear disease was identified by the model in this image."
-    ],
-    prevention: "Continue regular field monitoring and balanced crop care."
+    severity: "None",
+    treatment: ["No treatment needed. Continue regular field monitoring."],
+    prevention: "Keep balanced fertilization, good drainage and regular scouting.",
+    pesticide: ""
   },
-
   tungro: {
     issue: "Rice Tungro",
+    severity: "High",
     treatment: [
-      "Check symptoms and seek confirmation from a local agriculture officer.",
-      "Monitor potential insect vectors and affected plants.",
-      "Follow locally recommended management guidance."
+      "Remove and destroy infected hills early.",
+      "Control the leafhopper vector (light traps, recommended insecticide).",
+      "No cure for infected plants - focus on vector control."
     ],
-    prevention: "Use healthy seedlings and follow local advice for managing insect vectors and weeds."
+    prevention: "Grow tungro-resistant varieties and synchronize planting with neighbours.",
+    pesticide: "Vector control only, as locally recommended."
+  },
+
+  // ---------- "extra" diseases (not in the 10-class model) ----------
+  sheath_blight: {
+    issue: "Sheath Blight",
+    severity: "Medium",
+    treatment: [
+      "Avoid dense planting and excess nitrogen.",
+      "Drain the field periodically to lower humidity at the base; keep weeds down.",
+      "Apply hexaconazole or validamycin if lesions climb up the plant, following label dose."
+    ],
+    prevention: "Use proper spacing and balanced fertilizer; remove infected stubble and weeds after harvest.",
+    pesticide: "Hexaconazole or validamycin (after local confirmation)."
+  },
+  false_smut: {
+    issue: "False Smut",
+    severity: "Medium",
+    treatment: [
+      "Remove and destroy infected panicles carefully (do not shake - spores spread).",
+      "Avoid excess nitrogen and late planting; reduce humidity at flowering.",
+      "Spray propiconazole or a copper-based fungicide at booting/early heading where locally recommended."
+    ],
+    prevention: "Use clean seed and tolerant varieties, plant on time and keep nitrogen balanced.",
+    pesticide: "Propiconazole or copper-based fungicide at booting/heading (as locally recommended)."
+  },
+  ufra: {
+    issue: "Ufra",
+    severity: "High",
+    treatment: [
+      "Remove and destroy infected plants and stubble; do not carry them to other fields.",
+      "Avoid irrigation water flowing from infected fields and dry the field after harvest.",
+      "Ask the local DAE/BRRI office about nematode control; no routine pesticide is advised without confirmation."
+    ],
+    prevention: "Plough deeply and dry the field after harvest, destroy ratoon rice and weed hosts, rotate with non-host crops.",
+    pesticide: "Nematicide only if advised by the local agriculture office."
+  },
+  bakanae: {
+    issue: "Bakanae (Foot Rot)",
+    severity: "Medium",
+    treatment: [
+      "Remove and destroy abnormally tall, thin, pale seedlings and plants with white roots at the lower nodes.",
+      "Do not use seed from infected fields.",
+      "Use hot-water or recommended fungicide seed treatment before sowing next time."
+    ],
+    prevention: "Use certified disease-free seed and treat seed before sowing.",
+    pesticide: "Seed-treatment fungicide as locally recommended."
   }
 };
+
+const SEVERITY = Object.fromEntries(
+  Object.entries(DISEASE_INFO).map(([label, info]) => [label, String(info.severity).toLowerCase()])
+);
+
+// Accepts labels, issue names or folder names ("Rice Blast", "foot_rot", "Ufra Disease" ...).
+const LABEL_ALIASES = {
+  "rice blast": "blast", "rice tungro": "tungro", "rice hispa": "hispa", "healthy": "normal",
+  "healthy rice leaf": "normal", "foot rot": "bakanae", "foot_rot": "bakanae", "bakanae foot rot": "bakanae",
+  "ufra disease": "ufra", "sheath blight": "sheath_blight", "false smut": "false_smut"
+};
+
+function canonicalLabel(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw) return "";
+  if (LABEL_ALIASES[raw]) return LABEL_ALIASES[raw];
+  const underscored = raw.replace(/[\s-]+/g, "_");
+  if (DISEASE_INFO[underscored] || underscored === "unknown") return underscored;
+  return LABEL_ALIASES[underscored] || underscored;
+}
+
+const UNCLEAR = {
+  issue: "Unable to identify",
+  severity: "Unknown",
+  treatment: [
+    "Retake the photo closer to the affected part, in daylight, focused on the leaf/stem/panicle.",
+    "Tick the visible symptoms below the photo and scan again.",
+    "Show the plant to your local agriculture officer (Krishi Call Center 16123)."
+  ],
+  prevention: "",
+  pesticide: ""
+};
+
+// The local model returns percentages (0-100); an external server may return
+// fractions (0-1). Decide ONCE for the whole list.
+function normalizeConfidences(predictions) {
+  const values = predictions.map((p) => Number(p.confidence));
+  const sum = values.reduce((a, b) => a + (Number.isFinite(b) ? b : 0), 0);
+  const asFraction = values.every((v) => Number.isFinite(v) && v <= 1) && sum <= 1.01;
+  return predictions.map((p, i) => ({
+    ...p,
+    label: String(p.label || "").trim().toLowerCase(),
+    confidence: asFraction ? values[i] * 100 : values[i]
+  }));
+}
 
 function isRiceCrop(crop) {
   const value = String(crop || "").trim().toLowerCase();
@@ -113,6 +218,10 @@ function isRiceCrop(crop) {
     value.includes("dhan") ||
     value.includes("oryza")
   );
+}
+
+function labelIssue(label) {
+  return DISEASE_INFO[label] ? DISEASE_INFO[label].issue : label.replace(/_/g, " ");
 }
 
 async function analyzePaddyImage({ imageBase64 }) {
@@ -128,11 +237,7 @@ async function analyzePaddyImage({ imageBase64 }) {
 
   let payload;
 
-  if (isLocalModelAvailable()) {
-    // Preferred: run the TF.js model inside Node (no Python server needed).
-    payload = { predictions: await predictLocal(image) };
-  } else {
-    // Fallback: external Python ML server.
+  async function callMlServer() {
     const response = await fetch(`${ML_API_URL}/predict`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -140,76 +245,84 @@ async function analyzePaddyImage({ imageBase64 }) {
       signal: AbortSignal.timeout(20000)
     });
 
-    payload = await response.json().catch(() => ({}));
+    const body = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(
-        payload.error || `Paddy ML API returned HTTP ${response.status}`
-      );
+      throw new Error(body.error || `Paddy ML API returned HTTP ${response.status}`);
     }
+    return body;
+  }
+
+  if (isLocalModelAvailable()) {
+    try {
+      payload = { predictions: await predictLocal(image, 30) };
+    } catch (error) {
+      console.warn("Local paddy model failed, trying ML server:", error.message);
+      payload = await callMlServer();
+    }
+  } else {
+    payload = await callMlServer();
   }
 
   if (!Array.isArray(payload.predictions) || payload.predictions.length === 0) {
     throw new Error("Paddy ML returned no predictions.");
   }
 
-  // Decide ONCE whether the whole list is 0-1 probabilities or 0-100 percentages.
-  // (Per-item checks turned a 0.4% guess into 40%.)
-  const scale = payload.predictions.every((p) => Number(p.confidence) <= 1) ? 100 : 1;
-  const prediction = payload.predictions[0];
-  const label = String(prediction.label || "").trim().toLowerCase();
-  const confidence = Number(prediction.confidence) * scale;
+  const predictions = normalizeConfidences(payload.predictions);
+  const top = predictions[0];
 
-  if (!label || !Number.isFinite(confidence)) {
+  if (!top.label || !Number.isFinite(top.confidence)) {
     throw new Error("Paddy ML API returned an invalid prediction.");
   }
 
-  const info = DISEASE_INFO[label] || {
-    issue: label.replace(/_/g, " "),
-    treatment: [
-      "Confirm the diagnosis with a local agriculture officer before treatment."
-    ],
-    prevention: "Monitor the crop regularly and follow locally recommended crop-care practices."
-  };
+  const modelClasses = predictions.map((p) => p.label);
 
-  const isHealthy = label === "normal";
+  const shown = predictions.slice(0, 3).map((item) => ({
+    label: item.label,
+    issue: labelIssue(item.label),
+    confidence: Math.round(item.confidence * 10) / 10
+  }));
 
-  // Severity describes the DISEASE, not how sure the model is.
-  const HIGH_SEVERITY = new Set([
-    "blast", "tungro", "bacterial_leaf_blight", "bacterial_panicle_blight"
-  ]);
-  const severity = isHealthy ? "None" : HIGH_SEVERITY.has(label) ? "High" : "Medium";
+  const base = { crop: "Rice", predictions: shown, modelClasses, source: "paddy-ml" };
+
+  // The model is guessing -> do not name a disease (same rule as the Colab notebook).
+  if (top.confidence < MIN_CONFIDENCE || !DISEASE_INFO[top.label]) {
+    return {
+      ...base,
+      issue: UNCLEAR.issue,
+      confidence: Math.round(Math.max(0, top.confidence)),
+      severity: UNCLEAR.severity,
+      treatment: UNCLEAR.treatment,
+      prevention: UNCLEAR.prevention,
+      pesticideNote: "",
+      lowConfidence: true,
+      disclaimer: "The model could not recognise this photo clearly. Retake it closer, in daylight, and confirm with a local agriculture officer."
+    };
+  }
+
+  const info = DISEASE_INFO[top.label];
 
   return {
-    crop: "Rice",
+    ...base,
     issue: info.issue,
-    confidence: Math.round(Math.max(0, Math.min(100, confidence))),
-    severity,
+    confidence: Math.round(Math.max(0, Math.min(100, top.confidence))),
+    severity: SEVERITY[top.label] || "medium",
     treatment: info.treatment,
     prevention: info.prevention,
-    source: "paddy-ml",
-    lowConfidence: confidence < 60,
+    pesticideNote: info.pesticide,
+    lowConfidence: top.confidence < LOW_CONFIDENCE,
     disclaimer:
-      confidence < 60
+      top.confidence < LOW_CONFIDENCE
         ? "The model is not confident about this photo. Retake it in good light with one leaf filling the frame, and confirm with a local agriculture officer."
-        : "AI result from a leaf photo. Confirm with a local agriculture officer before using any chemical.",
-    predictions: payload.predictions.map((item) => {
-      const itemLabel = String(item.label || "").trim().toLowerCase();
-      const itemInfo = DISEASE_INFO[itemLabel];
-
-      return {
-        label: itemLabel,
-        issue: itemInfo
-          ? itemInfo.issue
-          : itemLabel.replace(/_/g, " "),
-        confidence: Number(item.confidence) * scale
-      };
-    })
+        : "AI result from a leaf photo. Confirm with a local agriculture officer before using any chemical."
   };
 }
 
 module.exports = {
   analyzePaddyImage,
   warmUp: () => (isLocalModelAvailable() ? loadModel().catch((e) => console.warn("Paddy model preload failed:", e.message)) : null),
-  isRiceCrop
+  isRiceCrop,
+  DISEASE_INFO,
+  SEVERITY,
+  canonicalLabel
 };

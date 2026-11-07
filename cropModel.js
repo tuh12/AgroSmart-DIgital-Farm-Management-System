@@ -33,15 +33,20 @@ const ranges = {
   rainfall: 280
 };
 
+function num(value) {
+  // Number("") is 0, which silently hid empty form fields.
+  return value === "" || value === null || value === undefined ? NaN : Number(value);
+}
+
 function toFeatures(input) {
   return {
-    n: Number(input.nitrogen ?? input.n ?? input.N),
-    p: Number(input.phosphorus ?? input.p ?? input.P),
-    k: Number(input.potassium ?? input.k ?? input.K),
-    temperature: Number(input.temperature),
-    humidity: Number(input.humidity),
-    ph: Number(input.ph ?? input.pH),
-    rainfall: Number(input.rainfall)
+    n: num(input.nitrogen ?? input.n ?? input.N),
+    p: num(input.phosphorus ?? input.p ?? input.P),
+    k: num(input.potassium ?? input.k ?? input.K),
+    temperature: num(input.temperature),
+    humidity: num(input.humidity),
+    ph: num(input.ph ?? input.pH),
+    rainfall: num(input.rainfall)
   };
 }
 
@@ -58,12 +63,12 @@ function validateFeatures(features) {
     return "pH must be between 0 and 14";
   }
 
-  if (features.n < 0 || features.p < 0 || features.k < 0 || features.rainfall < 0) {
-    return "Nitrogen, phosphorus, potassium and rainfall cannot be negative";
-  }
-
   if (features.humidity < 0 || features.humidity > 100) {
     return "Humidity must be between 0 and 100";
+  }
+
+  if (features.n < 0 || features.p < 0 || features.k < 0 || features.rainfall < 0) {
+    return "Nitrogen, phosphorus, potassium and rainfall cannot be negative";
   }
 
   return null;

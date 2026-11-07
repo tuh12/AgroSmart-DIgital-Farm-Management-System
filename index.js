@@ -17,7 +17,9 @@ const {
   getFertilizerDose
 } = require("./cropKnowledge");
 const { analyzeLeaf } = require("./leafScanner");
-const { analyzePaddyImage, isRiceCrop, warmUp: warmUpPaddy } = require("./paddyModel");
+const { analyzePaddyImage, isRiceCrop, warmUp: warmUpPaddyModel } = require("./paddyModel");
+const { isLocalModelAvailable } = require("./paddyLocal");
+const { diagnoseRiceWithVision, isEnabled: visionEnabled } = require("./visionDiagnosis");
 const { initializeDatabase, readData, writeData } = require("./store");
 
 const app = express();
@@ -36,19 +38,15 @@ app.use(express.json({ limit: "15mb" }));
 // Serve ONLY the front-end files. Previously express.static(__dirname) exposed
 // the whole project folder (data/smart-agro.sqlite, auth.js, store.js ...).
 const PUBLIC_FILES = new Set(["index.html", "app.js", "styles.css"]);
-const PUBLIC_IMAGE = /^(images|logo)[A-Za-z0-9 _().-]*\.(jpg|jpeg|png|webp|svg)$/i;
 app.use((req, res, next) => {
   if (req.method !== "GET" && req.method !== "HEAD") return next();
-  let name;
-  try {
-    name = decodeURIComponent(req.path).replace(/^\/+/, "");
-  } catch (error) {
-    return next(); // malformed %-encoding must not crash the request
-  }
-  if (PUBLIC_FILES.has(name) || (PUBLIC_IMAGE.test(name) && !name.includes(".."))) {
-    return res.sendFile(name, { root: __dirname }, (err) => {
-      if (err && !res.headersSent) next();
-    });
+  const name = decodeURIComponent(req.path).replace(/^\/+/, "");
+  // Front-end files + image files that sit directly in the project root
+  // (e.g. "ChatGPT Image ....png", "images (1).jpg"). No sub-folders, no "..".
+  const isRootImage = /^[^/\\]+\.(jpg|jpeg|png|webp|svg|ico)$/i.test(name) && !name.includes("..");
+  if (PUBLIC_FILES.has(name) || isRootImage) {
+    const file = path.join(__dirname, name);
+    if (fs.existsSync(file)) return res.sendFile(file);
   }
   return next();
 });
@@ -72,10 +70,7 @@ async function saveScanThumb(scanId, imageBase64) {
   }
 }
 
-// Simple in-memory brute-force protection for login.
-const loginAttempts = new Map();
-const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const LOGIN_MAX_FAILS = 10;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function createId(prefix) {
   return `${prefix}_${crypto.randomUUID()}`;
@@ -190,19 +185,20 @@ function authMiddleware(req, res, next) {
 function buildDashboardPayload(userId) {
   const data = readData();
   const farms = data.farms.filter((farm) => farm.userId === userId);
+  const byNewest = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
   const recommendations = data.recommendations
     .filter((item) => item.userId === userId)
-    .slice(-5)
-    .reverse();
+    .sort(byNewest)
+    .slice(0, 5);
   const tasks = data.tasks.filter((task) => task.userId === userId);
   const allComplaints = data.complaints.filter((item) => item.userId === userId);
   const allScans = data.scans.filter((scan) => scan.userId === userId);
-  const complaints = allComplaints.slice(-6).reverse();
-  const scans = allScans.slice(-6).reverse();
+  const complaints = [...allComplaints].sort(byNewest).slice(0, 6);
+  const scans = [...allScans].sort(byNewest).slice(0, 6);
   const marketPrices = (data.marketPrices || [])
     .filter((item) => item.userId === userId)
-    .slice(-6)
-    .reverse();
+    .sort(byNewest)
+    .slice(0, 6);
 
   const totalArea = farms.reduce((sum, farm) => sum + Number(farm.area || 0), 0);
   const avgHealth = farms.length
@@ -226,11 +222,6 @@ function buildDashboardPayload(userId) {
   }
 
   return {
-    weather: {
-      temperature: 29,
-      humidity: 78,
-      condition: "Sunny intervals"
-    },
     metrics: {
       fields: farms.length,
       totalArea: Number(totalArea.toFixed(1)),
@@ -360,7 +351,7 @@ app.post("/api/auth/signup", (req, res) => {
   const normalizedEmail = String(email).trim().toLowerCase();
   const normalizedPhone = String(phone).trim();
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+  if (!EMAIL_RE.test(normalizedEmail)) {
     return res.status(400).json({ message: "Please enter a valid email address" });
   }
 
@@ -539,29 +530,11 @@ app.post("/api/auth/login", (req, res) => {
     (item) => item.email === normalizedEmail
   );
 
-  const rateKey = `${req.ip}|${normalizedEmail}`;
-  let attempt = loginAttempts.get(rateKey);
-  if (attempt && Date.now() - attempt.first > LOGIN_WINDOW_MS) {
-    loginAttempts.delete(rateKey);
-    attempt = null;
-  }
-  if (attempt && attempt.count >= LOGIN_MAX_FAILS) {
-    return res.status(429).json({
-      message: "Too many failed attempts. Please try again in 15 minutes."
-    });
-  }
-
   if (!user || !verifyPassword(password, user.passwordHash)) {
-    loginAttempts.set(rateKey, {
-      first: attempt ? attempt.first : Date.now(),
-      count: (attempt ? attempt.count : 0) + 1
-    });
     return res.status(401).json({
       message: "Invalid email or password"
     });
   }
-
-  loginAttempts.delete(rateKey);
 
   const token = createToken({
     id: user.id,
@@ -976,7 +949,7 @@ app.post("/api/tasks", authMiddleware, (req, res) => {
     userId: req.auth.id,
     title: String(title).trim(),
     dueDate: String(dueDate),
-    priority: String(priority || "medium"),
+    priority: ["low", "medium", "high"].includes(priority) ? priority : "medium",
     status: "open",
     createdAt: new Date().toISOString()
   };
@@ -998,8 +971,8 @@ app.patch("/api/tasks/:taskId", authMiddleware, (req, res) => {
   }
 
   const nextStatus = req.body?.status;
-  if (nextStatus && !["open", "done"].includes(nextStatus)) {
-    return res.status(400).json({ message: "Status must be open or done" });
+  if (nextStatus !== undefined && !["open", "done"].includes(nextStatus)) {
+    return res.status(400).json({ message: "Status must be 'open' or 'done'" });
   }
   task.status = nextStatus || task.status;
   writeData(data);
@@ -1056,15 +1029,48 @@ app.post("/api/complaints", authMiddleware, (req, res) => {
 app.post("/api/scanner/leaf", authMiddleware, async (req, res) => {
   const { crop = "" } = req.body || {};
   let imageBase64 = typeof req.body?.imageBase64 === "string" ? req.body.imageBase64 : "";
-  if (imageBase64.includes(",")) imageBase64 = imageBase64.split(",")[1];
+  if (imageBase64.startsWith("data:")) imageBase64 = imageBase64.slice(imageBase64.indexOf(",") + 1);
 
   let result;
   try {
     if (imageBase64 && isRiceCrop(crop)) {
-      result = await analyzePaddyImage({ imageBase64 });
+      // 1) Vision AI: sees the real photo, knows all 14 conditions, can say "unknown".
+      if (visionEnabled()) {
+        try {
+          result = await diagnoseRiceWithVision({
+            imageBase64,
+            symptoms: req.body?.symptoms,
+            notes: req.body?.notes
+          });
+        } catch (err) {
+          console.warn("Vision AI failed, trying local model:", err.message);
+        }
+      }
+      // 2) Local image model (only knows its own trained classes).
+      if (!result) result = await analyzePaddyImage({
+        imageBase64,
+        symptoms: req.body?.symptoms,
+        notes: req.body?.notes
+      });
     }
   } catch (err) {
     console.warn("Paddy model failed, using keyword fallback:", err.message);
+  }
+
+  // If the loaded image model has no class for a disease the farmer's ticked
+  // symptoms clearly point to (e.g. an older 10-class model vs Ufra / False
+  // smut / Bakanae / Sheath blight), the model can only answer wrongly.
+  // Trust the symptom match in that case instead.
+  const MODEL_BLIND = {
+    "Ufra disease": "ufra",
+    "False smut": "false_smut",
+    "Bakanae disease": "bakanae",
+    "Sheath blight": "sheath_blight"
+  };
+  if (result?.source === "paddy-ml" && Array.isArray(result.modelClasses) && result.modelClasses.length) {
+    const kw = analyzeLeaf(req.body || {});
+    const needed = MODEL_BLIND[kw.issue];
+    if (needed && !kw.lowConfidence && !result.modelClasses.includes(needed)) result = kw;
   }
   if (!result) result = analyzeLeaf(req.body || {});
 
@@ -1090,6 +1096,7 @@ app.post("/api/scanner/leaf", authMiddleware, async (req, res) => {
     prevention: result.prevention || "",
     disclaimer: result.disclaimer || "",
     cropRisks: result.cropRisks || null,
+    pesticideNote: result.pesticideNote || "",
     createdAt: new Date().toISOString()
   });
   writeData(data);
@@ -1170,33 +1177,30 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// JSON error handler (oversized bodies, bad JSON, unexpected errors).
+// JSON errors (too-large image, malformed JSON ...) instead of Express' HTML page.
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
   const status = err.status || err.statusCode || 500;
+  const message =
+    status === 413 ? "The uploaded image is too large. Please choose a smaller photo."
+    : status === 400 ? "Invalid request data"
+    : "Server error";
   if (status >= 500) console.error(err);
-  res.status(status).json({
-    message:
-      status === 413 ? "The uploaded image is too large."
-      : status >= 500 ? "Server error. Please try again."
-      : err.message || "Bad request"
-  });
+  res.status(status).json({ message });
 });
 
 async function warmUp() {
+  if (isLocalModelAvailable()) {
+    await warmUpPaddyModel();
+    return;
+  }
+
+  const url = process.env.PADDY_ML_URL || "http://127.0.0.1:5001";
   try {
-    // Prefer preloading the local TF.js model; only ping the Python server
-    // if no local model is installed.
-    const preload = warmUpPaddy();
-    if (preload) {
-      await preload;
-      return;
-    }
-    const url = process.env.PADDY_ML_URL || "http://127.0.0.1:5001";
     const res = await fetch(`${url}/health`, { signal: AbortSignal.timeout(5000) });
     console.log("Paddy ML server reachable:", res.ok);
   } catch (error) {
-    console.warn("Paddy model/server not ready yet:", error.message);
+    console.warn("Paddy ML server not reachable yet:", error.message);
   }
 }
 

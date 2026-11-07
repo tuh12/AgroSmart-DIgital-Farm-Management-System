@@ -94,8 +94,48 @@ const diagnosisRules = [
 // CROP_DISEASE_MAP below.
 // ============================================================
 const DISEASE_INFO = {
+  "Ufra disease": {
+    keywords: ["twisted", "crinkled", "white tip", "panicle not emerg", "distorted panicle", "swollen node", "ufra", "nematode", "stuck panicle"],
+    severity: "High",
+    treatment: [
+      "Ufra is caused by a nematode: remove and destroy infected plants, stubble and ratoon rice.",
+      "Drain and dry the field after harvest and avoid moving water or plants from infected fields.",
+      "Ask a local agriculture officer about nematode management; do not apply a pesticide without local advice."
+    ],
+    prevention: "Destroy stubble and volunteer rice, rotate with a non-host crop, and use clean seedlings."
+  },
+  "False smut": {
+    keywords: ["orange ball", "spore ball", "green ball", "velvet", "grain smut", "false smut", "yellow ball", "black ball"],
+    severity: "Medium",
+    treatment: [
+      "Cut and destroy infected panicles carefully (bag them first) so spores do not scatter.",
+      "Avoid excess nitrogen fertilizer.",
+      "A preventive fungicide at booting/heading may be advised in high-risk seasons - confirm with a local agriculture officer."
+    ],
+    prevention: "Use a tolerant variety, balanced fertilizer, and do not keep seed from heavily infected fields."
+  },
+  "Powdery mildew": {
+    keywords: ["white powder", "powder", "white dust", "mildew"],
+    severity: "Medium",
+    treatment: [
+      "Remove heavily infected leaves.",
+      "Spray wettable sulfur or potassium bicarbonate in early stage.",
+      "Use hexaconazole/propiconazole only when disease spreads."
+    ],
+    prevention: "Keep plants airy and avoid excess nitrogen."
+  },
+  "Downy mildew": {
+    keywords: ["downy", "yellow patch", "gray mold", "underside", "water soaked", "mildew"],
+    severity: "High",
+    treatment: [
+      "Remove infected leaves and reduce leaf wetness.",
+      "Use metalaxyl + mancozeb or cymoxanil mixture where locally recommended.",
+      "Do not save seed from infected plants."
+    ],
+    prevention: "Use resistant varieties and water early morning."
+  },
   "Bacterial leaf blight": {
-    keywords: ["blight", "water soaked", "streak", "wilt", "yellow leaf curl", "dry up"],
+    keywords: ["leaf margin", "yellow margin", "margin dry", "straw", "water soaked", "streak", "wilt", "dry up", "blight"],
     severity: "High",
     treatment: [
       "Drain the field and avoid excess standing water around the base.",
@@ -105,7 +145,7 @@ const DISEASE_INFO = {
     prevention: "Use certified disease-free seed and avoid clipping seedling tips before transplanting."
   },
   "Rice blast": {
-    keywords: ["diamond", "spindle", "neck rot", "gray center", "blast", "lesion"],
+    keywords: ["diamond", "spindle", "neck rot", "gray center", "eye shaped", "blast", "lesion"],
     severity: "High",
     treatment: [
       "Remove and destroy infected tillers/panicles.",
@@ -125,7 +165,7 @@ const DISEASE_INFO = {
     prevention: "Use quality seed and balanced fertilizer, particularly potash."
   },
   "Sheath blight": {
-    keywords: ["sheath", "irregular lesion", "lower leaf", "blight"],
+    keywords: ["sheath", "gray oval", "greenish gray", "oval lesion", "irregular lesion", "water line", "khol", "lower leaf", "blight"],
     severity: "Medium",
     treatment: [
       "Avoid dense planting and excess nitrogen.",
@@ -135,7 +175,7 @@ const DISEASE_INFO = {
     prevention: "Maintain proper plant spacing and balanced fertilizer use."
   },
   "Tungro virus": {
-    keywords: ["yellow orange", "orange leaf", "stunt", "yellow leaf curl", "virus"],
+    keywords: ["yellow orange", "orange yellow", "orange leaf", "stunt", "virus", "tungro"],
     severity: "High",
     treatment: [
       "Remove and destroy infected hills as early as possible.",
@@ -145,7 +185,7 @@ const DISEASE_INFO = {
     prevention: "Use a resistant variety and synchronize planting with neighboring fields."
   },
   "Bakanae disease": {
-    keywords: ["tall", "spindly", "thin stem", "pale", "yellow"],
+    keywords: ["tall thin", "tall", "spindly", "thin stem", "roots at node", "white roots", "foot rot", "bakanae", "pale"],
     severity: "Medium",
     treatment: [
       "Remove and destroy abnormally tall, thin seedlings.",
@@ -687,7 +727,7 @@ const DISEASE_INFO = {
 // Maps each crop to the exact disease names it is prone to.
 // ============================================================
 const CROP_DISEASE_MAP = {
-  rice: ["Bacterial leaf blight", "Rice blast", "Brown spot", "Sheath blight", "Tungro virus", "Bakanae disease"],
+  rice: ["Bacterial leaf blight", "Rice blast", "Brown spot", "Sheath blight", "Tungro virus", "Bakanae disease", "Ufra disease", "False smut"],
   wheat: ["Wheat blast", "Leaf rust", "Loose smut", "Karnal bunt", "Powdery mildew"],
   maize: ["Turcicum leaf blight", "Maydis leaf blight", "Common rust", "Downy mildew", "Stalk rot"],
   jute: ["Stem rot", "Black band disease", "Anthracnose", "Root rot"],
@@ -739,73 +779,68 @@ function scoreRules(rules, haystack) {
     .sort((a, b) => b.hits.length - a.hits.length);
 }
 
+const STOP_WORDS = new Set(["with", "that", "this", "from", "under", "small", "leaves", "leaf", "plant", "plants", "often", "when", "into", "near", "turn", "turns"]);
+
 function analyzeLeaf(input) {
   const cropName = String(input.crop || "").trim();
   const cropKey = cropName.toLowerCase();
   const symptoms = Array.isArray(input.symptoms) ? input.symptoms.join(" ") : String(input.symptoms || "");
-  const imageName = String(input.imageName || "");
   const notes = String(input.notes || "");
-  const haystack = `${cropName} ${symptoms} ${imageName} ${notes}`.toLowerCase();
+  // The crop name and image file name are deliberately NOT part of the
+  // haystack: "rice" / "IMG_rust.jpg" must not trigger disease keywords.
+  const haystack = `${symptoms} ${notes} ${String(input.imageName || "")}`.toLowerCase();
 
   const crop = cropLibrary.find((item) => item.name.toLowerCase() === cropKey);
 
-  // Real, crop-specific disease rules (exact disease names).
   const specificRules = CROP_DISEASE_RULES[cropKey] || [];
   const specificMatches = scoreRules(specificRules, haystack);
-
-  // Old generic categories, used only as a fallback.
   const genericMatches = scoreRules(diagnosisRules, haystack);
 
-  let selected;
+  let selected = null;
   let hitCount = 0;
+  let unidentified = false;
 
   if (specificMatches.length) {
-    // We know the crop AND matched a specific disease's keywords —
-    // this is the exact disease name.
     selected = specificMatches[0].rule;
     hitCount = specificMatches[0].hits.length;
-  } else if (specificRules.length) {
-    // We know the crop, but no keyword matched strongly. Still
-    // prefer a real disease name for this crop over a vague
-    // generic label.
-    selected = specificRules[0];
-    hitCount = 0;
   } else if (genericMatches.length) {
-    // Unknown/unlisted crop — fall back to the old generic
-    // category matching.
     selected = genericMatches[0].rule;
     hitCount = genericMatches[0].hits.length;
   } else {
-    selected = diagnosisRules[0];
-    hitCount = 0;
+    // Nothing matched. Do NOT invent a disease name (the old code returned the
+    // first disease of the crop at 60 % confidence).
+    unidentified = true;
+    selected = {
+      issue: "Unable to identify",
+      severity: "Unknown",
+      treatment: [
+        "Select the visible symptoms and add a short field note, then scan again.",
+        "Photograph a single affected leaf in daylight, including both sides if possible.",
+        "Show the plant to your local agriculture officer (Krishi Call Center 16123)."
+      ],
+      prevention: "Scout the field every few days and remove badly affected leaves early."
+    };
   }
 
-  const pestHints = pestGuide.filter((item) => {
-    return item.crops.some((name) => name.toLowerCase() === cropKey) ||
-      item.symptoms.toLowerCase().split(/[ ,.;]+/).some((word) => word && haystack.includes(word));
-  }).slice(0, 3);
+  const pestHints = pestGuide
+    .filter((item) => {
+      if (item.crops.some((name) => name.toLowerCase() === cropKey)) return true;
+      // Only meaningful words; short words like "in"/"and" matched every pest.
+      const words = item.symptoms.toLowerCase().split(/[^a-z]+/)
+        .filter((word) => word.length >= 5 && !STOP_WORDS.has(word));
+      return words.filter((word) => haystack.includes(word)).length >= 2;
+    })
+    .slice(0, 3);
 
-  // No keyword matched = no evidence, so say so instead of showing 60%.
-  const confidence = hitCount ? Math.min(90, 55 + hitCount * 10) : 35;
-  const lowConfidence = hitCount === 0;
-
-  const ranked = specificMatches.length ? specificMatches : genericMatches;
-  const predictions = ranked.length
-    ? ranked.slice(0, 3).map(({ rule, hits }) => ({
-        label: rule.issue,
-        issue: rule.issue,
-        confidence: Math.min(90, 55 + hits.length * 10)
-      }))
-    : [{ label: selected.issue, issue: selected.issue, confidence }];
+  const confidence = unidentified ? 30 : Math.min(96, 58 + hitCount * 13);
 
   return {
     crop: cropName || "Unknown crop",
     issue: selected.issue,
     confidence,
-    lowConfidence,
-    source: "keyword-rules",
-    predictions,
     severity: selected.severity,
+    lowConfidence: unidentified || confidence < 60,
+    source: "keyword-rules",
     treatment: selected.treatment,
     prevention: selected.prevention,
     cropRisks: crop ? {
@@ -814,9 +849,7 @@ function analyzeLeaf(input) {
       pesticide: crop.pesticide
     } : null,
     pestHints,
-    disclaimer: lowConfidence
-      ? "No symptoms or notes matched, so this is only a low-confidence guess from common diseases of this crop. Tick the symptoms you see or add a note, and confirm with a local agriculture officer before using any chemical."
-      : "Image scanner is a field-assistant prototype. Confirm chemical use with a local agriculture officer and always follow product label dose."
+    disclaimer: "Image scanner is a field-assistant prototype. Confirm chemical use with a local agriculture officer and always follow product label dose."
   };
 }
 
