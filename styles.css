@@ -25,10 +25,9 @@
   --shadow: 0 28px 80px rgba(8, 36, 29, 0.16);
   --glass: rgba(255, 255, 255, 0.12);
   --card-shadow: 0 18px 44px rgba(12, 45, 37, 0.08);
-  --font-display: "Fraunces", Georgia, serif;
   --font-bangla: "SutonnyMJ", "Sutonny MJ", serif;
   --font-english: "Times New Roman", Times, serif;
-  --font-ui: "Times New Roman", system-ui, sans-serif;
+  --font-ui: "Times New Roman", Times, serif;
 }
 
 * {
@@ -2787,4 +2786,76 @@ article.scan-hist-card:hover, article.scan-hist-card:focus-visible { transform: 
   .side-nav { grid-template-columns: 1fr; overflow: visible; }
   .side-nav button, .logout-btn { text-align: left; }
   .sidebar { overflow-y: auto; }
+}
+
+
+/* ---------- Scan history: toolbar, cards ---------- */
+.scan-toolbar { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.scan-toolbar input, .scan-toolbar select { width: 100%; height: 44px; border: 1px solid #d9dfdc; border-radius: 12px; padding: 0 12px; background: #fff; color: var(--ink); }
+.scan-toolbar-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+.scan-toolbar-meta > div { display: flex; gap: 8px; }
+.rp-btn.small { min-height: 34px; padding: 0 14px; font-size: 12.5px; }
+
+.scan-hist-card { border-left: 4px solid transparent; }
+.scan-hist-card.band-high { border-left-color: #21925c; }
+.scan-hist-card.band-mid { border-left-color: #d29c3d; }
+.scan-hist-card.band-low { border-left-color: #c24131; }
+
+.sh-bar { height: 6px; border-radius: 6px; background: #e3ece7; overflow: hidden; }
+.sh-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #21925c, #12b5a6); }
+.band-mid .sh-bar i { background: linear-gradient(90deg, #d29c3d, #e8bd6a); }
+.band-low .sh-bar i { background: linear-gradient(90deg, #c24131, #e57c6f); }
+
+.scan-hist-card .sc-sev { padding: 3px 9px; font-size: 11.5px; }
+.sh-more { grid-column: 1 / -1; justify-self: center; }
+
+@media (max-width: 760px) {
+  .scan-toolbar { grid-template-columns: 1fr 1fr; }
+  .scan-toolbar input { grid-column: 1 / -1; }
+}
+
+
+/* ---------- Live clock (middle of top bar) ---------- */
+.top-row .topbar { grid-template-columns: auto 1fr auto; }
+
+.clock-pill {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-900);
+  font-family: var(--font-english);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(22, 47, 35, 0.04);
+}
+
+.clock-pill::before { content: "🕒"; margin-right: 10px; font-size: 16px; }
+
+@media (max-width: 900px) {
+  .top-row .topbar { grid-template-columns: auto 1fr auto; }
+}
+
+@media (max-width: 760px) {
+  .clock-pill { min-height: 44px; padding: 0 14px; font-size: 14px; }
+}
+
+@media (max-width: 560px) {
+  .top-row .topbar { grid-template-columns: 1fr 1fr; }
+  .clock-pill { justify-self: end; }
+}
+
+/* Clock really in the middle: beat ".top-row .topbar > div { justify-self:start }" */
+.top-row .topbar > .clock-pill { justify-self: center; }
+.top-row .topbar > .weather-pill { justify-self: end; }
+
+@media (max-width: 560px) {
+  .top-row .topbar > .clock-pill { justify-self: end; }
 }

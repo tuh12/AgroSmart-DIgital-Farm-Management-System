@@ -15,7 +15,7 @@
 
         <div class="hero-inner">
           <div class="topbar-hero">
-            <img src="ChatGPT Image Aug 25, 2026, 11_33_24 PM.png" alt="logo">
+            <img src="logo.png" alt="logo">
             <div class="brand-badge">AgroSmart</div>
             <label class="language-switch" for="languageSelect">
               <span data-i18n="langLabel">Language</span>
@@ -136,6 +136,7 @@
               <div>
                 <p id="dateText"></p>
               </div>
+              <div class="clock-pill" id="clockText" role="timer" aria-label="Current time"></div>
               <div class="weather-pill" id="weatherPill" data-i18n="weatherLoading">Weather loading</div>
             </header>
 
@@ -259,6 +260,29 @@
                 <span id="scanHistoryCount">0</span>
               </div>
               <div class="scan-stats" id="scanStatsGrid"></div>
+              <div class="scan-toolbar">
+                <input id="scanSearch" type="search" data-i18n-ph="phScanSearch" placeholder="Search disease, crop or note..." />
+                <select id="scanCropFilter" aria-label="Crop"></select>
+                <select id="scanBandFilter" aria-label="Reliability">
+                  <option value="" data-i18n="filterAllBands">All reliability</option>
+                  <option value="high" data-i18n="bandHigh">High</option>
+                  <option value="mid" data-i18n="bandMid">Medium</option>
+                  <option value="low" data-i18n="bandLow">Low</option>
+                </select>
+                <select id="scanSortSelect" aria-label="Sort">
+                  <option value="new" data-i18n="sortNewest">Newest first</option>
+                  <option value="old" data-i18n="sortOldest">Oldest first</option>
+                  <option value="high" data-i18n="sortHigh">Highest confidence</option>
+                  <option value="low" data-i18n="sortLow">Lowest confidence</option>
+                </select>
+              </div>
+              <div class="scan-toolbar-meta">
+                <span id="scanResultCount"></span>
+                <div>
+                  <button type="button" class="rp-btn small hidden" id="scanClearFilters" data-i18n="clearFilters">Clear filters</button>
+                  <button type="button" class="rp-btn small hidden" id="scanExportBtn" data-i18n="exportCsv">Export CSV</button>
+                </div>
+              </div>
               <div class="scan-history-grid" id="scanHistoryList"></div>
             </section>
           </section>
