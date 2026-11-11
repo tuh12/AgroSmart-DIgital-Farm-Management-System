@@ -136,7 +136,6 @@
               <div>
                 <p id="dateText"></p>
               </div>
-              <div class="clock-pill" id="clockText" role="timer" aria-label="Current time"></div>
               <div class="weather-pill" id="weatherPill" data-i18n="weatherLoading">Weather loading</div>
             </header>
 
@@ -260,29 +259,6 @@
                 <span id="scanHistoryCount">0</span>
               </div>
               <div class="scan-stats" id="scanStatsGrid"></div>
-              <div class="scan-toolbar">
-                <input id="scanSearch" type="search" data-i18n-ph="phScanSearch" placeholder="Search disease, crop or note..." />
-                <select id="scanCropFilter" aria-label="Crop"></select>
-                <select id="scanBandFilter" aria-label="Reliability">
-                  <option value="" data-i18n="filterAllBands">All reliability</option>
-                  <option value="high" data-i18n="bandHigh">High</option>
-                  <option value="mid" data-i18n="bandMid">Medium</option>
-                  <option value="low" data-i18n="bandLow">Low</option>
-                </select>
-                <select id="scanSortSelect" aria-label="Sort">
-                  <option value="new" data-i18n="sortNewest">Newest first</option>
-                  <option value="old" data-i18n="sortOldest">Oldest first</option>
-                  <option value="high" data-i18n="sortHigh">Highest confidence</option>
-                  <option value="low" data-i18n="sortLow">Lowest confidence</option>
-                </select>
-              </div>
-              <div class="scan-toolbar-meta">
-                <span id="scanResultCount"></span>
-                <div>
-                  <button type="button" class="rp-btn small hidden" id="scanClearFilters" data-i18n="clearFilters">Clear filters</button>
-                  <button type="button" class="rp-btn small hidden" id="scanExportBtn" data-i18n="exportCsv">Export CSV</button>
-                </div>
-              </div>
               <div class="scan-history-grid" id="scanHistoryList"></div>
             </section>
           </section>
@@ -598,47 +574,84 @@
       </section>
     </main>
 
-    <div class="auth-modal hidden" id="authModal" aria-hidden="true">
+    <div class="auth-modal hidden" id="authModal" aria-hidden="true" data-mode="login">
       <div class="auth-backdrop" id="authBackdrop"></div>
+
       <section class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-        <button class="close-btn" id="closeAuthBtn" type="button" aria-label="Close">x</button>
-        <div class="auth-orbit"></div>
-        <p id="authKicker" data-i18n="authKickerLogin">Please enter your details</p>
-        <h2 id="authTitle" data-i18n="authTitleLogin">Welcome Back</h2>
+        <button class="close-btn" id="closeAuthBtn" type="button" aria-label="Close">&times;</button>
 
-        <form id="authForm">
-          <div class="signup-fields hidden" id="signupFields">
-            <input name="name" data-i18n-ph="phFullName" placeholder="Full name" autocomplete="name" />
-            <input name="phone" data-i18n-ph="phPhone" placeholder="Phone number" autocomplete="tel" />
-            <input name="location" data-i18n-ph="phLocation" placeholder="Farm location" autocomplete="address-level2" />
-          </div>
-
-          <input name="email" type="email" data-i18n-ph="phEmail" placeholder="Email address" autocomplete="email" required />
-          <div class="password-wrap">
-            <input name="password" id="passwordInput" type="password" data-i18n-ph="phPassword" placeholder="Password" autocomplete="current-password" required />
-            <button id="togglePasswordBtn" type="button" aria-label="Show password">&#128065;</button>
-          </div>
-          <div class="reset-fields hidden" id="resetFields">
-            <div class="password-wrap">
-              <input name="confirmPassword" id="confirmPasswordInput" type="password" data-i18n-ph="phConfirmPassword" placeholder="Confirm password" autocomplete="new-password" />
+        <aside class="auth-side">
+          <div class="auth-side-inner">
+            <div class="auth-logo">
+              <img src="logo.png" alt="AgroSmart - Digital Farm Management System" />
             </div>
-            <p class="auth-help" data-i18n="resetHelp">Enter your email and choose a new password.</p>
+            <p class="auth-side-tag" data-i18n="tagline">AI + field monitoring</p>
+            <ul class="auth-points">
+              <li><i>✓</i><span data-i18n="featCropAI">Crop Analysis</span></li>
+              <li><i>✓</i><span data-i18n="navScanner">Leaf Scanner</span></li>
+              <li><i>✓</i><span data-i18n="featPlanner">Field Planner</span></li>
+            </ul>
           </div>
+          <span class="blob b1"></span><span class="blob b2"></span>
+        </aside>
 
-          <div class="auth-row" id="authRow">
-            <label class="remember"><input type="checkbox" /> <span data-i18n="rememberMe">Remember me</span></label>
-            <button type="button" class="link-btn" id="forgotPasswordBtn" data-i18n="forgotPassword">Forgot password?</button>
-          </div>
+        <div class="auth-main">
+          <header class="auth-head">
+            <p id="authKicker" data-i18n="authKickerLogin">Sign in to AgroSmart</p>
+            <h2 id="authTitle" data-i18n="authTitleLogin">Welcome Back</h2>
+          </header>
 
-          <button class="sign-btn" id="authSubmitBtn" type="submit" data-i18n="signInBtn">Sign In</button>
-          <p class="auth-error" id="authError"></p>
-        </form>
+          <form id="authForm">
+            <div class="signup-fields hidden" id="signupFields">
+              <div class="field">
+                <span class="field-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+                <input name="name" data-i18n-ph="phFullName" placeholder="Full name" autocomplete="name" />
+              </div>
+              <div class="field">
+                <span class="field-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></span>
+                <input name="phone" type="tel" data-i18n-ph="phPhone" placeholder="Phone number" autocomplete="tel" />
+              </div>
+              <div class="field">
+                <span class="field-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                <input name="location" data-i18n-ph="phLocation" placeholder="Farm location" autocomplete="address-level2" />
+              </div>
+            </div>
 
+            <div class="field">
+              <span class="field-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+              <input name="email" type="email" data-i18n-ph="phEmail" placeholder="Email address" autocomplete="email" required />
+            </div>
 
-        <p class="switch-auth">
-          <span id="switchText" data-i18n="noAccount">Don't have an account?</span>
-          <button type="button" id="switchAuthBtn" data-i18n="signUpLink">Sign up</button>
-        </p>
+            <div class="field password-wrap">
+              <span class="field-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+              <input name="password" id="passwordInput" type="password" data-i18n-ph="phPassword" placeholder="Password" autocomplete="current-password" required />
+              <button id="togglePasswordBtn" type="button" aria-label="Show password">&#128065;</button>
+            </div>
+
+            <div class="pw-meter" id="pwMeter" data-level="0"><i></i><i></i><i></i><i></i></div>
+
+            <div class="reset-fields hidden" id="resetFields">
+              <div class="field password-wrap">
+                <span class="field-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                <input name="confirmPassword" id="confirmPasswordInput" type="password" data-i18n-ph="phConfirmPassword" placeholder="Confirm password" autocomplete="new-password" />
+              </div>
+              <p class="auth-help" data-i18n="resetHelp">Enter your email and choose a new password.</p>
+            </div>
+
+            <div class="auth-row" id="authRow">
+              <label class="remember"><input type="checkbox" /> <span data-i18n="rememberMe">Remember me</span></label>
+              <button type="button" class="link-btn" id="forgotPasswordBtn" data-i18n="forgotPassword">Forgot password?</button>
+            </div>
+
+            <button class="sign-btn" id="authSubmitBtn" type="submit" data-i18n="signInBtn">Sign In</button>
+            <p class="auth-error" id="authError" role="alert"></p>
+          </form>
+
+          <p class="switch-auth">
+            <span id="switchText" data-i18n="noAccount">Don't have an account?</span>
+            <button type="button" id="switchAuthBtn" data-i18n="signUpLink">Sign up</button>
+          </p>
+        </div>
       </section>
     </div>
         <script src="app.js"></script>

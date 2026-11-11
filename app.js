@@ -13,9 +13,7 @@ const state = {
   scanHistory: [],
   openReportId: null,
   liveWeather: null,
-  lang: "en",
-  historyFilters: { search: "", crop: "", band: "", sort: "new" },
-  historyLimit: 12
+  lang: "en"
 };
 
 // Last result drawn by each result panel, so a language switch can redraw it.
@@ -34,7 +32,7 @@ const translations = {
     title: "AgroSmart-Digital Farm Management System",
     lead: "A digital farming platform powered by crop intelligence, field planning, pest detection, and smart decision support.",
     getStarted: "Get Started",
-    tagline: " field monitoring",
+    tagline: "field monitoring",
     featCropAI: "Crop Analysis",
     featCropAIDesc: "Recommendation engine",
     featPlanner: "Field Planner",
@@ -163,7 +161,7 @@ const translations = {
     liveFarmSummary: "Live farm summary",
     alerts: "Alerts",
     today: "Today",
-    recentAI: "Recent AI",
+    recentprofile: "Recent profile",
     CropProfile: "Crop  profile",
     recentScans: "Recent Scans",
     leafHealth: "Leaf health",
@@ -295,7 +293,7 @@ const translations = {
     waterWord: "water",
     adviceHeading: "Recommended Advice",
 
-    leafScannerHeading: "Leaf Scanner",
+    leafScannerHeading: "AI Leaf Scanner",
     imageSymptoms: "Visible Symptoms",
     labelCrop: "Crop",
     labelLeafImage: "Leaf Image",
@@ -348,7 +346,7 @@ const translations = {
     severityLabel: "Severity:",
     scanHistoryHeading: "Scan History",
     noScanHistoryYet: "No scans yet. Your scanned leaves will appear here.",
-    modelResultLabel: "model",
+    modelResultLabel: "AI model",
     keywordResultLabel: "Keyword guess",
     lowConfLabel: "Low confidence",
     matchLabel: "match",
@@ -404,20 +402,7 @@ const translations = {
     statAvg: "Average confidence",
     statModel: "AI-model scans",
     statLow: "Low-confidence scans",
-    statTop: "Most frequent issue",
-    phScanSearch: "Search disease, crop or note...",
-    filterAllBands: "All reliability",
-    filterAllCrops: "All crops",
-    sortNewest: "Newest first",
-    sortOldest: "Oldest first",
-    sortHigh: "Highest confidence",
-    sortLow: "Lowest confidence",
-    clearFilters: "Clear filters",
-    exportCsv: "Export CSV",
-    showMore: "Show more",
-    showingWord: "Showing",
-    ofWord: "of",
-    noScanMatch: "No scans match your filters."
+    statTop: "Most frequent issue"
   },
 
   bn: {
@@ -427,7 +412,7 @@ const translations = {
     title: "আগ্রোস্মার্ট-ডিজিটাল ফার্ম ম্যানেজমেন্ট সিস্টেম",
     lead: "ফসল বুদ্ধিমত্তা, মাঠ পরিকল্পনা, পোকা সনাক্তকরণ এবং স্মার্ট সিদ্ধান্ত সহায়তার মাধ্যমে চালিত একটি ডিজিটাল কৃষি প্ল্যাটফর্ম।",
     getStarted: "শুরু করুন",
-    tagline: " মাঠ পর্যবেক্ষণ",
+    tagline: "মাঠ পর্যবেক্ষণ",
     featCropAI: "ফসল বিশ্লেষণ",
     featCropAIDesc: "সুপারিশ ইঞ্জিন",
     featPlanner: "মাঠ পরিকল্পক",
@@ -797,20 +782,7 @@ const translations = {
     statAvg: "গড় নির্ভরযোগ্যতা",
     statModel: "AI মডেল স্ক্যান",
     statLow: "কম নির্ভরযোগ্য স্ক্যান",
-    statTop: "সবচেয়ে বেশি পাওয়া সমস্যা",
-    phScanSearch: "রোগ, ফসল বা নোট খুঁজুন...",
-    filterAllBands: "সব নির্ভরযোগ্যতা",
-    filterAllCrops: "সব ফসল",
-    sortNewest: "নতুন আগে",
-    sortOldest: "পুরনো আগে",
-    sortHigh: "সর্বোচ্চ নির্ভরযোগ্যতা",
-    sortLow: "সর্বনিম্ন নির্ভরযোগ্যতা",
-    clearFilters: "ফিল্টার মুছুন",
-    exportCsv: "CSV এক্সপোর্ট",
-    showMore: "আরও দেখুন",
-    showingWord: "দেখানো হচ্ছে",
-    ofWord: "/",
-    noScanMatch: "ফিল্টারের সাথে কোনো স্ক্যান মেলেনি।"
+    statTop: "সবচেয়ে বেশি পাওয়া সমস্যা"
   }
 };
 
@@ -1186,32 +1158,9 @@ const SOIL_BN = {
 };
 
 const PESTICIDE_BN = {
-  "rice": "স্থানীয় বিশেষজ্ঞের নিশ্চিতকরণের পর কাণ্ড ছিদ্রকারী পোকার জন্য ক্লোরানট্রানিলিপ্রোল, গাছ ফড়িংয়ের জন্য পাইমেট্রোজিন এবং ব্লাস্ট রোগের জন্য ট্রাইসাইক্লাজল ব্যবহার করুন।",
-  "wheat": "জাব পোকার জন্য ইমিডাক্লোপ্রিড এবং ক্ষতির সীমা অতিক্রম করলে মরিচা রোগের জন্য টেবুকোনাজল/প্রোপিকোনাজল ব্যবহার করুন।",
-  "maize": "ফল আর্মিওয়ার্মের জন্য পরামর্শ অনুযায়ী মোচার ভেতরের কেন্দ্রে ইমামেকটিন বেনজোয়েট বা স্পাইনেটোরাম প্রয়োগ করুন।",
-  "jute": "প্রথমে নিমের নির্যাস ব্যবহার করুন; আক্রমণ বেশি হলেই কেবল শুঁয়োপোকার জন্য ল্যাম্বডা-সাইহ্যালোথ্রিন ব্যবহার করুন।",
-  "potato": "ব্লাইট প্রতিরোধে ম্যানকোজেব/ক্লোরোথ্যালোনিল আগে থেকে ব্যবহার করুন; নাবি ধ্বসার ঝুঁকি বেশি হলেই কেবল মেটালাক্সিল মিশ্রণ ব্যবহার করুন।",
-  "tomato": "ফল ছিদ্রকারী পোকার জন্য ফেরোমন ফাঁদ, সাদা মাছির জন্য হলুদ ফাঁদ এবং ছত্রাকজনিত পাতার দাগে তামা/ম্যানকোজেব ব্যবহার করুন।",
-  "eggplant": "ফেরোমন ফাঁদ ব্যবহার করুন ও আক্রান্ত ডগা সরিয়ে ফেলুন; পোকা থেকে গেলেই কেবল ইমামেকটিন বেনজোয়েট দিন।",
-  "chili": "মাকড়/থ্রিপসের জন্য অ্যাবামেকটিন এবং অ্যানথ্রাকনোজ প্রতিরোধে কপার অক্সিক্লোরাইড বা ম্যানকোজেব ব্যবহার করুন।",
-  "okra": "রস শোষক পোকার জন্য হলুদ ফাঁদ ও নিম তেল ব্যবহার করুন; পাউডারি মিলডিউতে প্রয়োজনে সালফার কার্যকর।",
-  "cucumber": "ফল মাছির জন্য কিউ-লিওর ফাঁদ এবং রোগ নির্ণয়ের পর পাউডারি মিলডিউতে সালফার বা হেক্সাকোনাজল ব্যবহার করুন।",
-  "bottle gourd": "ফেরোমন/কিউ-লিওর ফাঁদ, নিম তেল এবং প্রয়োজনে পাউডারি মিলডিউতে সালফার ব্যবহার করুন।",
-  "pumpkin": "প্রথমে টোপ ফাঁদ ও নিম তেল ব্যবহার করুন; ক্ষতির সীমা অতিক্রম করলেই কেবল সুপারিশকৃত কীটনাশক দিন।",
-  "cauliflower": "শুঁয়োপোকার জন্য Bt, স্পিনোস্যাড বা ইমামেকটিন ব্যবহার করুন; কালো পচা রোগ দমনে তামাভিত্তিক স্প্রে সহায়ক।",
-  "cabbage": "ডায়মন্ডব্যাক মথের জন্য Bt/স্পিনোস্যাড এবং জাব পোকার তীব্র আক্রমণে কেবল ইমিডাক্লোপ্রিড ব্যবহার করুন।",
-  "onion": "থ্রিপসের জন্য নীল স্টিকি ফাঁদ ও স্পিনোস্যাড; পার্পল ব্লচের জন্য ম্যানকোজেব/প্রোপিকোনাজল ব্যবহার করুন।",
-  "garlic": "পরিষ্কার কোয়া ব্যবহার করুন; সাদা পচা রোগের ইতিহাস থাকলে ছত্রাকনাশক দিয়ে বীজ শোধন করুন।",
-  "spinach": "নিম তেল ও হলুদ ফাঁদ ব্যবহার করুন; ফসল তোলার কাছাকাছি সময়ে কড়া কীটনাশক এড়িয়ে চলুন।",
-  "red amaranth": "নিমের নির্যাস ব্যবহার করুন এবং প্রয়োজনে কেবল স্বল্প অপেক্ষাকাল (প্রি-হার্ভেস্ট ইন্টারভাল) সম্পন্ন পণ্য দিন।",
-  "carrot": "প্রথমে বীজ শোধন ও নিমভিত্তিক দমন ব্যবহার করুন; ব্লাইট নিশ্চিত হলে ছত্রাকনাশক দিন।",
-  "radish": "জাব পোকা/ফ্লি বিটলের জন্য নিম তেল এবং ছত্রাকজনিত দাগ নিশ্চিত হলে তামা/ম্যানকোজেব ব্যবহার করুন।",
-  "bean": "শুঁটি ছিদ্রকারী পোকার জন্য ফেরোমন ফাঁদ এবং রোগ নির্ণয়ের পর মরিচা রোগে প্রোপিকোনাজল ব্যবহার করুন।",
-  "pea": "পাউডারি মিলডিউতে সালফার এবং প্রাথমিক অবস্থায় জাব পোকার জন্য নিম তেল ব্যবহার করুন।",
-  "banana": "পরিষ্কার চারা, ঘুণ পোকার জন্য ফেরোমন ফাঁদ এবং পরামর্শ অনুযায়ী সিগাটোকায় ম্যানকোজেব/প্রোপিকোনাজল ব্যবহার করুন।",
-  "mango": "ফল মাছির জন্য টোপ ফাঁদ এবং প্রয়োজনে পাউডারি মিলডিউতে সালফার/হেক্সাকোনাজল ব্যবহার করুন।",
-  "papaya": "মিলিবাগের জন্য নিম তেল/সাবান এবং রোগ নির্ণয়ের পর অ্যানথ্রাকনোজে তামা/ম্যানকোজেব ব্যবহার করুন।",
-  "watermelon": "টোপ ফাঁদ ও নিম তেল ব্যবহার করুন; মিলডিউ নিশ্চিত হলে সালফার বা উপযুক্ত ছত্রাকনাশক দিন।"
+  rice: "স্থানীয় বিশেষজ্ঞের নিশ্চিতকরণের পর কাণ্ড ছিদ্রকারী পোকার জন্য ক্লোরানট্রানিলিপ্রোল, গাছ ফড়িংয়ের জন্য পাইমেট্রোজিন এবং ব্লাস্ট রোগের জন্য ট্রাইসাইক্লাজল ব্যবহার করুন।",
+  wheat: "জাব পোকার জন্য ইমিডাক্লোপ্রিড এবং ক্ষতির সীমা অতিক্রম করলে মরিচা রোগের জন্য টেবুকোনাজল/প্রোপিকোনাজল ব্যবহার করুন।",
+  maize: "ফল আর্মিওয়ার্মের জন্য পরামর্শ অনুযায়ী মোচার ভেতরের কেন্দ্রে (হুর্লে) ইমামেকটিন বেনজোয়েট বা স্পাইনেটোরাম প্রয়োগ করুন।"
 };
 
 const CARE_BN = {};
@@ -1392,246 +1341,6 @@ const PADDY_BN = {
     pesticide: ""
   }
 };
-
-const LINE_BN = {
-  "Ufra is caused by a nematode: remove and destroy infected plants, stubble and ratoon rice.": "উফরা নেমাটোড (কৃমি) দ্বারা হয়: আক্রান্ত গাছ, নাড়া ও গজানো ধান তুলে নষ্ট করুন।",
-  "Drain and dry the field after harvest and avoid moving water or plants from infected fields.": "ফসল কাটার পর জমি শুকিয়ে ফেলুন এবং আক্রান্ত জমি থেকে পানি বা গাছ অন্য জমিতে নেবেন না।",
-  "Ask a local agriculture officer about nematode management; do not apply a pesticide without local advice.": "নেমাটোড দমনের বিষয়ে স্থানীয় কৃষি কর্মকর্তার পরামর্শ নিন; স্থানীয় পরামর্শ ছাড়া কীটনাশক দেবেন না।",
-  "Destroy stubble and volunteer rice, rotate with a non-host crop, and use clean seedlings.": "নাড়া ও গজানো ধান নষ্ট করুন, অ-পোষক ফসলের সাথে ফসলের পালা করুন এবং পরিষ্কার চারা ব্যবহার করুন।",
-  "Cut and destroy infected panicles carefully (bag them first) so spores do not scatter.": "আক্রান্ত শীষ সাবধানে (আগে ব্যাগে ভরে) কেটে নষ্ট করুন, যাতে স্পোর ছড়িয়ে না পড়ে।",
-  "Avoid excess nitrogen fertilizer.": "অতিরিক্ত নাইট্রোজেন সার এড়িয়ে চলুন।",
-  "A preventive fungicide at booting/heading may be advised in high-risk seasons - confirm with a local agriculture officer.": "ঝুঁকিপূর্ণ মৌসুমে থোড়/শীষ আসার সময় প্রতিরোধমূলক ছত্রাকনাশক দেওয়ার পরামর্শ থাকতে পারে — স্থানীয় কৃষি কর্মকর্তার সাথে নিশ্চিত হন।",
-  "Use a tolerant variety, balanced fertilizer, and do not keep seed from heavily infected fields.": "সহনশীল জাত ও সুষম সার ব্যবহার করুন এবং বেশি আক্রান্ত জমির বীজ রাখবেন না।",
-  "Remove heavily infected leaves.": "বেশি আক্রান্ত পাতা সরিয়ে ফেলুন।",
-  "Spray wettable sulfur or potassium bicarbonate in early stage.": "প্রাথমিক অবস্থায় ওয়েটেবল সালফার বা পটাশিয়াম বাইকার্বনেট স্প্রে করুন।",
-  "Use hexaconazole/propiconazole only when disease spreads.": "রোগ ছড়ালে তবেই হেক্সাকোনাজল/প্রোপিকোনাজল ব্যবহার করুন।",
-  "Keep plants airy and avoid excess nitrogen.": "গাছের মাঝে বাতাস চলাচলের জায়গা রাখুন এবং অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন।",
-  "Remove infected leaves and reduce leaf wetness.": "আক্রান্ত পাতা সরিয়ে ফেলুন এবং পাতা ভেজা থাকার সময় কমান।",
-  "Use metalaxyl + mancozeb or cymoxanil mixture where locally recommended.": "স্থানীয়ভাবে সুপারিশ থাকলে মেটালাক্সিল + ম্যানকোজেব বা সাইমক্সানিল মিশ্রণ ব্যবহার করুন।",
-  "Do not save seed from infected plants.": "আক্রান্ত গাছের বীজ সংরক্ষণ করবেন না।",
-  "Use resistant varieties and water early morning.": "প্রতিরোধী জাত ব্যবহার করুন এবং সকালবেলা সেচ দিন।",
-  "Drain the field and avoid excess standing water around the base.": "জমির পানি বের করে দিন এবং গোড়ার চারপাশে অতিরিক্ত পানি জমতে দেবেন না।",
-  "Remove and destroy severely infected leaves/plants.": "মারাত্মক আক্রান্ত পাতা/গাছ তুলে নষ্ট করুন।",
-  "Apply copper-based bactericide or streptocycline where locally approved.": "স্থানীয়ভাবে অনুমোদিত হলে তামাভিত্তিক ব্যাকটেরিয়ানাশক বা স্ট্রেপটোসাইক্লিন ব্যবহার করুন।",
-  "Use certified disease-free seed and avoid clipping seedling tips before transplanting.": "প্রত্যয়িত রোগমুক্ত বীজ ব্যবহার করুন এবং রোপণের আগে চারার ডগা কাটা এড়িয়ে চলুন।",
-  "Remove and destroy infected tillers/panicles.": "আক্রান্ত কুশি/শীষ তুলে নষ্ট করুন।",
-  "Avoid excess nitrogen; balance fertilizer application.": "অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন; সুষম সার দিন।",
-  "Apply tricyclazole or isoprothiolane fungicide after confirmation.": "রোগ নিশ্চিত হওয়ার পর ট্রাইসাইক্লাজল বা আইসোপ্রোথিওলেন ছত্রাকনাশক ব্যবহার করুন।",
-  "Use a blast-resistant variety and avoid continuous water stress.": "ব্লাস্ট-প্রতিরোধী জাত ব্যবহার করুন এবং বারবার পানির চাপ এড়িয়ে চলুন।",
-  "Improve soil fertility, especially potassium.": "মাটির উর্বরতা, বিশেষ করে পটাশিয়াম বাড়ান।",
-  "Remove and burn infected straw/stubble after harvest.": "ফসল কাটার পর আক্রান্ত খড়/নাড়া পুড়িয়ে ফেলুন।",
-  "Apply mancozeb or propiconazole if the infection is severe.": "সংক্রমণ মারাত্মক হলে ম্যানকোজেব বা প্রোপিকোনাজল ব্যবহার করুন।",
-  "Use quality seed and balanced fertilizer, particularly potash.": "ভালো মানের বীজ ও সুষম সার, বিশেষ করে পটাশ ব্যবহার করুন।",
-  "Avoid dense planting and excess nitrogen.": "ঘন রোপণ ও অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন।",
-  "Drain the field periodically to lower humidity near the base.": "গোড়ার আর্দ্রতা কমাতে মাঝে মাঝে জমির পানি শুকিয়ে দিন।",
-  "Apply hexaconazole or validamycin where necessary.": "প্রয়োজনে হেক্সাকোনাজল বা ভ্যালিডামাইসিন ব্যবহার করুন।",
-  "Maintain proper plant spacing and balanced fertilizer use.": "সঠিক দূরত্বে রোপণ করুন এবং সুষম সার ব্যবহার করুন।",
-  "Remove and destroy infected hills as early as possible.": "আক্রান্ত গুছি যত দ্রুত সম্ভব তুলে নষ্ট করুন।",
-  "Control the leafhopper vector population.": "বাহক সবুজ পাতা ফড়িং নিয়ন্ত্রণ করুন।",
-  "There is no cure once a plant is infected — focus on prevention and vector control.": "আক্রান্ত হলে আর প্রতিকার নেই — প্রতিরোধ ও বাহক পোকা দমনে মনোযোগ দিন।",
-  "Use a resistant variety and synchronize planting with neighboring fields.": "প্রতিরোধী জাত ব্যবহার করুন এবং আশপাশের জমির সাথে একই সময়ে রোপণ করুন।",
-  "Remove and destroy abnormally tall, thin seedlings.": "অস্বাভাবিক লম্বা ও সরু চারা তুলে নষ্ট করুন।",
-  "Use hot-water seed treatment before sowing.": "বপনের আগে গরম পানিতে বীজ শোধন করুন।",
-  "Apply a recommended seed-treatment fungicide.": "সুপারিশকৃত বীজ শোধনের ছত্রাকনাশক ব্যবহার করুন।",
-  "Use certified, disease-free seed.": "প্রত্যয়িত রোগমুক্ত বীজ ব্যবহার করুন।",
-  "Remove and destroy severely infected plants/heads.": "মারাত্মক আক্রান্ত গাছ/শীষ তুলে নষ্ট করুন।",
-  "Avoid late sowing, which raises blast risk.": "দেরিতে বপন এড়িয়ে চলুন, কারণ এতে ব্লাস্টের ঝুঁকি বাড়ে।",
-  "Apply a triazole fungicide (e.g. tebuconazole) at early heading if confirmed.": "নিশ্চিত হলে শীষ আসার শুরুতে ট্রায়াজোল ছত্রাকনাশক (যেমন টেবুকোনাজল) ব্যবহার করুন।",
-  "Grow a blast-tolerant variety and avoid excess nitrogen near heading stage.": "ব্লাস্ট-সহনশীল জাত চাষ করুন এবং শীষ আসার সময় অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন।",
-  "Remove volunteer wheat plants nearby.": "আশপাশের স্বেচ্ছাসেবী (আপনা-আপনি গজানো) গম গাছ সরিয়ে ফেলুন।",
-  "Apply propiconazole or tebuconazole at first sign of infection.": "সংক্রমণের প্রথম লক্ষণ দেখা দিলেই প্রোপিকোনাজল বা টেবুকোনাজল ব্যবহার করুন।",
-  "Monitor the field regularly during humid weather.": "আর্দ্র আবহাওয়ায় নিয়মিত জমি পর্যবেক্ষণ করুন।",
-  "Grow a rust-resistant variety and avoid very early sowing.": "মরিচা-প্রতিরোধী জাত চাষ করুন এবং খুব আগাম বপন এড়িয়ে চলুন।",
-  "Remove and destroy infected earheads before spores are released.": "স্পোর ছড়ানোর আগে আক্রান্ত শীষ তুলে নষ্ট করুন।",
-  "Use a systemic seed-treatment fungicide next season.": "আগামী মৌসুমে অন্তর্বাহী (সিস্টেমিক) বীজ শোধন ছত্রাকনাশক ব্যবহার করুন।",
-  "Avoid using seed from an infected field.": "আক্রান্ত জমির বীজ ব্যবহার করবেন না।",
-  "Use certified seed treated with fungicide.": "ছত্রাকনাশক দিয়ে শোধিত প্রত্যয়িত বীজ ব্যবহার করুন।",
-  "Avoid using infected grain as seed.": "আক্রান্ত দানা বীজ হিসেবে ব্যবহার করবেন না।",
-  "Practice crop rotation with a non-host crop.": "অ-পোষক ফসলের সাথে ফসলের পালা করুন।",
-  "Apply propiconazole spray at flowering in high-risk areas.": "ঝুঁকিপূর্ণ এলাকায় ফুল আসার সময় প্রোপিকোনাজল স্প্রে করুন।",
-  "Use a resistant variety and certified seed.": "প্রতিরোধী জাত ও প্রত্যয়িত বীজ ব্যবহার করুন।",
-  "Remove and destroy crop debris after harvest.": "ফসল কাটার পর ফসলের অবশিষ্টাংশ তুলে নষ্ট করুন।",
-  "Rotate with a non-host crop.": "অ-পোষক ফসলের সাথে পালা করুন।",
-  "Apply mancozeb or propiconazole if severe.": "মারাত্মক হলে ম্যানকোজেব বা প্রোপিকোনাজল ব্যবহার করুন।",
-  "Use a resistant hybrid and avoid continuous maize monocropping.": "প্রতিরোধী হাইব্রিড ব্যবহার করুন এবং একই জমিতে বারবার ভুট্টা চাষ এড়িয়ে চলুন।",
-  "Practice crop rotation and residue management.": "ফসলের পালা ও অবশিষ্টাংশ ব্যবস্থাপনা মেনে চলুন।",
-  "Monitor the field regularly during cool, humid weather.": "শীতল ও আর্দ্র আবহাওয়ায় নিয়মিত জমি পর্যবেক্ষণ করুন।",
-  "Apply fungicide only if severe and before tasseling.": "মারাত্মক হলে এবং মোচা আসার আগেই ছত্রাকনাশক ব্যবহার করুন।",
-  "Avoid excess nitrogen.": "অতিরিক্ত নাইট্রোজেন এড়িয়ে চলুন।",
-  "Grow a rust-tolerant hybrid.": "মরিচা-সহনশীল হাইব্রিড চাষ করুন।",
-  "Avoid water stress and nitrogen/potassium imbalance.": "পানির চাপ এবং নাইট্রোজেন/পটাশিয়ামের ভারসাম্যহীনতা এড়িয়ে চলুন।",
-  "Harvest promptly once infected to reduce lodging loss.": "আক্রান্ত হলে দ্রুত ফসল তুলুন, যাতে গাছ হেলে পড়ার ক্ষতি কমে।",
-  "Practice crop rotation.": "ফসলের পালা মেনে চলুন।",
-  "Maintain balanced potassium fertilization and avoid drought stress.": "সুষম পটাশিয়াম সার দিন এবং খরার চাপ এড়িয়ে চলুন।",
-  "Remove and destroy infected plants.": "আক্রান্ত গাছ তুলে নষ্ট করুন।",
-  "Improve field drainage.": "জমির পানি নিষ্কাশন ভালো করুন।",
-  "Treat seed with a recommended fungicide before sowing.": "বপনের আগে সুপারিশকৃত ছত্রাকনাশক দিয়ে বীজ শোধন করুন।",
-  "Practice crop rotation and avoid waterlogging.": "ফসলের পালা মেনে চলুন এবং জলাবদ্ধতা এড়িয়ে চলুন।",
-  "Use disease-free seed next season.": "আগামী মৌসুমে রোগমুক্ত বীজ ব্যবহার করুন।",
-  "Use disease-free seed and rotate crops.": "রোগমুক্ত বীজ ব্যবহার করুন এবং ফসলের পালা করুন।",
-  "Improve drainage and avoid waterlogging.": "পানি নিষ্কাশন ভালো করুন এবং জলাবদ্ধতা এড়িয়ে চলুন।",
-  "Remove and destroy severely affected plants.": "মারাত্মক আক্রান্ত গাছ তুলে নষ্ট করুন।",
-  "Treat seed with fungicide before sowing.": "বপনের আগে ছত্রাকনাশক দিয়ে বীজ শোধন করুন।",
-  "Ensure a well-drained field and practice crop rotation.": "জমির নিষ্কাশন ভালো রাখুন এবং ফসলের পালা করুন।",
-  "Remove and destroy infected foliage immediately.": "আক্রান্ত পাতা-পল্লব সঙ্গে সঙ্গে তুলে নষ্ট করুন।",
-  "Improve field drainage and avoid overhead irrigation.": "জমির নিষ্কাশন ভালো করুন এবং উপর থেকে সেচ দেওয়া এড়িয়ে চলুন।",
-  "Apply a mancozeb or metalaxyl-based fungicide promptly.": "দ্রুত ম্যানকোজেব বা মেটালাক্সিলভিত্তিক ছত্রাকনাশক ব্যবহার করুন।",
-  "Use certified disease-free seed/seedlings and a resistant variety.": "প্রত্যয়িত রোগমুক্ত বীজ/চারা ও প্রতিরোধী জাত ব্যবহার করুন।",
-  "Remove and destroy lower infected leaves.": "নিচের আক্রান্ত পাতা তুলে নষ্ট করুন।",
-  "Avoid overhead irrigation and improve airflow.": "উপর থেকে সেচ এড়িয়ে চলুন এবং বাতাস চলাচল ভালো করুন।",
-  "Apply mancozeb or chlorothalonil if the infection spreads.": "সংক্রমণ ছড়ালে ম্যানকোজেব বা ক্লোরোথ্যালোনিল ব্যবহার করুন।",
-  "Maintain balanced fertilization and avoid plant stress.": "সুষম সার দিন এবং গাছকে চাপে ফেলা এড়িয়ে চলুন।",
-  "Remove and destroy wilted plants immediately.": "ঢলে পড়া গাছ সঙ্গে সঙ্গে তুলে নষ্ট করুন।",
-  "Avoid replanting the same crop in infected soil for several seasons.": "আক্রান্ত মাটিতে কয়েক মৌসুম একই ফসল আবার লাগাবেন না।",
-  "Practice strict field sanitation and tool disinfection.": "কঠোরভাবে জমি পরিচ্ছন্ন রাখুন এবং যন্ত্রপাতি জীবাণুমুক্ত করুন।",
-  "Use disease-free seed/seedlings and avoid waterlogged soil.": "রোগমুক্ত বীজ/চারা ব্যবহার করুন এবং জলাবদ্ধ মাটি এড়িয়ে চলুন।",
-  "Maintain slightly acidic soil pH.": "মাটির pH সামান্য অম্লীয় রাখুন।",
-  "Ensure adequate soil moisture during tuber formation.": "কন্দ তৈরির সময় মাটিতে পর্যাপ্ত আর্দ্রতা রাখুন।",
-  "Avoid excess lime application.": "অতিরিক্ত চুন প্রয়োগ এড়িয়ে চলুন।",
-  "Rotate crops and avoid alkaline soil conditions.": "ফসলের পালা করুন এবং ক্ষারীয় মাটি এড়িয়ে চলুন।",
-  "Use disease-free seed tubers.": "রোগমুক্ত বীজ আলু ব্যবহার করুন।",
-  "Avoid planting in cold, wet soil.": "ঠান্ডা ও ভেজা মাটিতে রোপণ এড়িয়ে চলুন।",
-  "Treat seed tubers with a recommended fungicide.": "সুপারিশকৃত ছত্রাকনাশক দিয়ে বীজ আলু শোধন করুন।",
-  "Practice crop rotation and use certified seed.": "ফসলের পালা করুন এবং প্রত্যয়িত বীজ ব্যবহার করুন।",
-  "Remove and destroy infected plants early.": "আক্রান্ত গাছ শুরুতেই তুলে নষ্ট করুন।",
-  "Control the whitefly vector population.": "বাহক সাদা মাছি নিয়ন্ত্রণ করুন।",
-  "There is no curative pesticide for virus-infected plants.": "ভাইরাসে আক্রান্ত গাছের জন্য কোনো প্রতিকারমূলক কীটনাশক নেই।",
-  "Use resistant varieties and yellow sticky traps; avoid planting near infected fields.": "প্রতিরোধী জাত ও হলুদ স্টিকি ফাঁদ ব্যবহার করুন; আক্রান্ত জমির কাছে রোপণ এড়িয়ে চলুন।",
-  "Avoid replanting the same crop family in infected soil.": "আক্রান্ত মাটিতে একই ফসল-পরিবারের গাছ আবার লাগাবেন না।",
-  "Improve soil drainage and avoid waterlogging.": "মাটির নিষ্কাশন ভালো করুন এবং জলাবদ্ধতা এড়িয়ে চলুন।",
-  "Use resistant varieties and practice crop rotation.": "প্রতিরোধী জাত ব্যবহার করুন এবং ফসলের পালা করুন।",
-  "Remove and destroy infected lower leaves.": "নিচের আক্রান্ত পাতা তুলে নষ্ট করুন।",
-  "Avoid overhead irrigation.": "উপর থেকে সেচ দেওয়া এড়িয়ে চলুন।",
-  "Apply chlorothalonil or mancozeb if severe.": "মারাত্মক হলে ক্লোরোথ্যালোনিল বা ম্যানকোজেব ব্যবহার করুন।",
-  "Rotate crops and avoid working in wet foliage.": "ফসলের পালা করুন এবং ভেজা পাতায় কাজ করা এড়িয়ে চলুন।",
-  "Remove and destroy infected fruit and stems.": "আক্রান্ত ফল ও কাণ্ড তুলে নষ্ট করুন।",
-  "Apply mancozeb or copper-based fungicide if severe.": "মারাত্মক হলে ম্যানকোজেব বা তামাভিত্তিক ছত্রাকনাশক ব্যবহার করুন।",
-  "Rotate crops and avoid dense planting.": "ফসলের পালা করুন এবং ঘন রোপণ এড়িয়ে চলুন।",
-  "Remove and destroy infected plants to reduce spread.": "রোগ ছড়ানো কমাতে আক্রান্ত গাছ তুলে নষ্ট করুন।",
-  "Control leafhopper vectors.": "বাহক পাতা ফড়িং নিয়ন্ত্রণ করুন।",
-  "There is no cure once a plant is infected.": "আক্রান্ত হলে আর প্রতিকার নেই।",
-  "Use resistant varieties and control vector insects early.": "প্রতিরোধী জাত ব্যবহার করুন এবং শুরুতেই বাহক পোকা দমন করুন।",
-  "Remove and destroy collapsed seedlings immediately.": "ঢলে পড়া চারা সঙ্গে সঙ্গে তুলে নষ্ট করুন।",
-  "Improve drainage and avoid overwatering the nursery bed.": "পানি নিষ্কাশন ভালো করুন এবং বীজতলায় অতিরিক্ত পানি দেওয়া এড়িয়ে চলুন।",
-  "Treat seed/soil with a recommended fungicide before sowing.": "বপনের আগে সুপারিশকৃত ছত্রাকনাশক দিয়ে বীজ/মাটি শোধন করুন।",
-  "Use well-drained seedbeds and avoid overcrowding seedlings.": "ভালো নিষ্কাশনযুক্ত বীজতলা ব্যবহার করুন এবং চারা ঘন করে রাখবেন না।",
-  "Remove and destroy infected leaves/fruits.": "আক্রান্ত পাতা/ফল তুলে নষ্ট করুন।",
-  "Apply mancozeb or carbendazim if the infection is severe.": "সংক্রমণ মারাত্মক হলে ম্যানকোজেব বা কার্বেন্ডাজিম ব্যবহার করুন।",
-  "Use disease-free seed and avoid excess moisture on foliage/fruit.": "রোগমুক্ত বীজ ব্যবহার করুন এবং পাতা/ফলে অতিরিক্ত আর্দ্রতা এড়িয়ে চলুন।",
-  "Remove and destroy infected leaves.": "আক্রান্ত পাতা তুলে নষ্ট করুন।",
-  "Apply mancozeb or chlorothalonil if severe.": "মারাত্মক হলে ম্যানকোজেব বা ক্লোরোথ্যালোনিল ব্যবহার করুন।",
-  "Control whitefly/thrips vectors.": "বাহক সাদা মাছি/থ্রিপস নিয়ন্ত্রণ করুন।",
-  "Use resistant varieties and yellow/blue sticky traps.": "প্রতিরোধী জাত এবং হলুদ/নীল স্টিকি ফাঁদ ব্যবহার করুন।",
-  "Use resistant/tolerant varieties and yellow sticky traps.": "প্রতিরোধী/সহনশীল জাত ও হলুদ স্টিকি ফাঁদ ব্যবহার করুন।",
-  "Control aphid/whitefly vectors.": "বাহক জাব পোকা/সাদা মাছি নিয়ন্ত্রণ করুন।",
-  "Use resistant varieties and clean, virus-free planting material.": "প্রতিরোধী জাত এবং পরিষ্কার, ভাইরাসমুক্ত রোপণ উপকরণ ব্যবহার করুন।",
-  "Remove and destroy infected fruit promptly.": "আক্রান্ত ফল দ্রুত তুলে নষ্ট করুন।",
-  "Avoid fruit contact with wet soil (use mulch/stakes).": "ফল যেন ভেজা মাটির সংস্পর্শে না আসে (মালচ/খুঁটি ব্যবহার করুন)।",
-  "Apply mancozeb or carbendazim if severe.": "মারাত্মক হলে ম্যানকোজেব বা কার্বেন্ডাজিম ব্যবহার করুন।",
-  "Remove and destroy infected plants/debris.": "আক্রান্ত গাছ/অবশিষ্টাংশ তুলে নষ্ট করুন।",
-  "Use copper-based bactericide where locally approved.": "স্থানীয়ভাবে অনুমোদিত হলে তামাভিত্তিক ব্যাকটেরিয়ানাশক ব্যবহার করুন।",
-  "Use certified disease-free seed and rotate crops.": "প্রত্যয়িত রোগমুক্ত বীজ ব্যবহার করুন এবং ফসলের পালা করুন।",
-  "Rotate crops and maintain balanced fertilization.": "ফসলের পালা করুন এবং সুষম সার দিন।",
-  "Remove and destroy infected plants and roots.": "আক্রান্ত গাছ ও শিকড় তুলে নষ্ট করুন।",
-  "Improve soil drainage and raise soil pH with lime.": "মাটির নিষ্কাশন ভালো করুন এবং চুন দিয়ে মাটির pH বাড়ান।",
-  "Avoid replanting brassicas in infected soil for several years.": "আক্রান্ত মাটিতে কয়েক বছর কপি-জাতীয় ফসল আবার লাগাবেন না।",
-  "Practice long crop rotation and maintain neutral-to-alkaline soil pH.": "দীর্ঘ মেয়াদে ফসলের পালা করুন এবং মাটির pH নিরপেক্ষ থেকে ক্ষারীয় রাখুন।",
-  "Remove and destroy infected plants immediately.": "আক্রান্ত গাছ সঙ্গে সঙ্গে তুলে নষ্ট করুন।",
-  "Improve field drainage and avoid injury during handling.": "জমির নিষ্কাশন ভালো করুন এবং নাড়াচাড়ার সময় আঘাত লাগা এড়িয়ে চলুন।",
-  "Practice strict field sanitation.": "কঠোরভাবে জমি পরিচ্ছন্ন রাখুন।",
-  "Avoid waterlogging and handle produce carefully to prevent wounds.": "জলাবদ্ধতা এড়িয়ে চলুন এবং ক্ষত এড়াতে ফসল সাবধানে নাড়াচাড়া করুন।",
-  "Remove and destroy infected bulbs.": "আক্রান্ত কন্দ তুলে নষ্ট করুন।",
-  "Use disease-free seed bulbs/sets.": "রোগমুক্ত বীজ কন্দ/সেট ব্যবহার করুন।",
-  "Practice crop rotation and avoid waterlogged soil.": "ফসলের পালা করুন এবং জলাবদ্ধ মাটি এড়িয়ে চলুন।",
-  "Remove and destroy infected leaf tips.": "আক্রান্ত পাতার ডগা তুলে নষ্ট করুন।",
-  "Apply a recommended fungicide if severe.": "মারাত্মক হলে সুপারিশকৃত ছত্রাকনাশক ব্যবহার করুন।",
-  "Remove and destroy infected bulbs and surrounding soil where possible.": "সম্ভব হলে আক্রান্ত কন্দ ও আশপাশের মাটি তুলে নষ্ট করুন।",
-  "Avoid planting in infected fields for several years.": "কয়েক বছর আক্রান্ত জমিতে রোপণ এড়িয়ে চলুন।",
-  "Use disease-free planting material.": "রোগমুক্ত রোপণ উপকরণ ব্যবহার করুন।",
-  "Practice long crop rotation and use certified seed.": "দীর্ঘ মেয়াদে ফসলের পালা করুন এবং প্রত্যয়িত বীজ ব্যবহার করুন।",
-  "Remove and destroy heavily infected leaves.": "বেশি আক্রান্ত পাতা তুলে নষ্ট করুন।",
-  "Apply propiconazole or tebuconazole at first sign.": "প্রথম লক্ষণ দেখা দিলেই প্রোপিকোনাজল বা টেবুকোনাজল ব্যবহার করুন।",
-  "Monitor regularly during humid weather.": "আর্দ্র আবহাওয়ায় নিয়মিত পর্যবেক্ষণ করুন।",
-  "Grow rust-tolerant varieties and avoid dense planting.": "মরিচা-সহনশীল জাত চাষ করুন এবং ঘন রোপণ এড়িয়ে চলুন।",
-  "Apply mancozeb if the infection spreads.": "সংক্রমণ ছড়ালে ম্যানকোজেব ব্যবহার করুন।",
-  "Rotate crops and avoid overcrowding plants.": "ফসলের পালা করুন এবং গাছ ঘন করে লাগানো এড়িয়ে চলুন।",
-  "Rotate crops and avoid excess leaf wetness.": "ফসলের পালা করুন এবং পাতা অতিরিক্ত ভেজা থাকা এড়িয়ে চলুন।",
-  "Improve soil drainage.": "মাটির নিষ্কাশন ভালো করুন।",
-  "Avoid excess irrigation close to harvest.": "ফসল তোলার কাছাকাছি সময়ে অতিরিক্ত সেচ এড়িয়ে চলুন।",
-  "Rotate crops to reduce soil inoculum.": "মাটিতে রোগজীবাণু কমাতে ফসলের পালা করুন।",
-  "Ensure well-drained, well-aerated soil.": "ভালো নিষ্কাশন ও বায়ু চলাচলযুক্ত মাটি নিশ্চিত করুন।",
-  "Control aphid vectors.": "বাহক জাব পোকা নিয়ন্ত্রণ করুন।",
-  "Use virus-free certified seed and resistant varieties.": "ভাইরাসমুক্ত প্রত্যয়িত বীজ ও প্রতিরোধী জাত ব্যবহার করুন।",
-  "Remove and destroy infected plant debris.": "আক্রান্ত গাছের অবশিষ্টাংশ তুলে নষ্ট করুন।",
-  "Remove and destroy severely infected plants/mats.": "মারাত্মক আক্রান্ত গাছ/মোথা তুলে নষ্ট করুন।",
-  "Avoid moving soil or planting material from infected plots.": "আক্রান্ত জমি থেকে মাটি বা রোপণ উপকরণ অন্যত্র নেবেন না।",
-  "There is no chemical cure once soil is infected.": "মাটি একবার আক্রান্ত হলে রাসায়নিক প্রতিকার নেই।",
-  "Use resistant/tolerant varieties and clean planting material.": "প্রতিরোধী/সহনশীল জাত ও পরিষ্কার রোপণ উপকরণ ব্যবহার করুন।",
-  "Improve field drainage and spacing for airflow.": "জমির নিষ্কাশন ভালো করুন এবং বাতাস চলাচলের জন্য দূরত্ব রাখুন।",
-  "Maintain good field sanitation and adequate plant spacing.": "জমি পরিচ্ছন্ন রাখুন এবং গাছের মাঝে পর্যাপ্ত দূরত্ব বজায় রাখুন।",
-  "Remove and destroy infected plants (including rhizome) immediately.": "আক্রান্ত গাছ (কন্দসহ) সঙ্গে সঙ্গে তুলে নষ্ট করুন।",
-  "Control the banana aphid vector.": "বাহক কলার জাব পোকা নিয়ন্ত্রণ করুন।",
-  "Use virus-free planting material and remove infected mats promptly.": "ভাইরাসমুক্ত রোপণ উপকরণ ব্যবহার করুন এবং আক্রান্ত মোথা দ্রুত সরিয়ে ফেলুন।",
-  "Remove and destroy infected leaves/twigs.": "আক্রান্ত পাতা/ডালপালা তুলে নষ্ট করুন।",
-  "Apply copper-based bactericide where locally approved.": "স্থানীয়ভাবে অনুমোদিত হলে তামাভিত্তিক ব্যাকটেরিয়ানাশক ব্যবহার করুন।",
-  "Prune for airflow and avoid working on wet foliage.": "বাতাস চলাচলের জন্য ছাঁটাই করুন এবং ভেজা পাতায় কাজ করা এড়িয়ে চলুন।",
-  "Control the sap-sucking insects (aphid/whitefly/mealybug) causing honeydew.": "মধুরস সৃষ্টিকারী রস শোষক পোকা (জাব পোকা/সাদা মাছি/মিলিবাগ) নিয়ন্ত্রণ করুন।",
-  "Wash affected leaves with mild soap solution.": "আক্রান্ত পাতা হালকা সাবান-পানি দিয়ে ধুয়ে দিন।",
-  "Improve airflow by pruning dense growth.": "ঘন ডালপালা ছাঁটাই করে বাতাস চলাচল বাড়ান।",
-  "Manage sap-sucking pests early to prevent honeydew buildup.": "মধুরস জমা রোধে শুরুতেই রস শোষক পোকা দমন করুন।",
-  "Prune and destroy malformed panicles/shoots before flowering.": "ফুল আসার আগে বিকৃত মঞ্জরী/ডগা ছেঁটে নষ্ট করুন।",
-  "Avoid excess nitrogen fertilization.": "অতিরিক্ত নাইট্রোজেন সার প্রয়োগ এড়িয়ে চলুন।",
-  "Use disease-free grafting material for new plantings.": "নতুন বাগানের জন্য রোগমুক্ত কলম ব্যবহার করুন।",
-  "Use certified disease-free planting material and prune affected parts early.": "প্রত্যয়িত রোগমুক্ত রোপণ উপকরণ ব্যবহার করুন এবং আক্রান্ত অংশ শুরুতেই ছেঁটে ফেলুন।",
-  "Use tolerant varieties and isolate new plantings from infected fields.": "সহনশীল জাত ব্যবহার করুন এবং নতুন বাগান আক্রান্ত জমি থেকে আলাদা রাখুন।",
-  "Remove and destroy severely infected plants.": "মারাত্মক আক্রান্ত গাছ তুলে নষ্ট করুন।",
-  "Improve drainage around the base of the plant.": "গাছের গোড়ার চারপাশে পানি নিষ্কাশন ভালো করুন।",
-  "Apply a recommended fungicide drench at the base if caught early.": "শুরুতে ধরা পড়লে গোড়ায় সুপারিশকৃত ছত্রাকনাশক ঢালুন।",
-  "Avoid waterlogging at the base and use disease-free planting material.": "গোড়ায় জলাবদ্ধতা এড়িয়ে চলুন এবং রোগমুক্ত রোপণ উপকরণ ব্যবহার করুন।",
-  "Remove and destroy infected vines/fruit.": "আক্রান্ত লতা/ফল তুলে নষ্ট করুন।",
-  "Avoid overhead irrigation and working in wet fields.": "উপর থেকে সেচ এবং ভেজা জমিতে কাজ করা এড়িয়ে চলুন।",
-  "Rotate crops and use disease-free seed.": "ফসলের পালা করুন এবং রোগমুক্ত বীজ ব্যবহার করুন।",
-  "Remove badly infected leaves and keep them away from the field.": "বেশি আক্রান্ত পাতা তুলে জমি থেকে দূরে সরিয়ে ফেলুন।",
-  "Apply mancozeb, chlorothalonil, or copper-based fungicide after local diagnosis.": "স্থানীয় রোগ নির্ণয়ের পর ম্যানকোজেব, ক্লোরোথ্যালোনিল বা তামাভিত্তিক ছত্রাকনাশক ব্যবহার করুন।",
-  "Use clean seed, rotate crops, and avoid dense planting.": "পরিষ্কার বীজ ব্যবহার করুন, ফসলের পালা করুন এবং ঘন রোপণ এড়িয়ে চলুন।",
-  "Remove infected plants early to reduce spread.": "রোগ ছড়ানো কমাতে আক্রান্ত গাছ শুরুতেই তুলে ফেলুন।",
-  "Control vectors such as whitefly, aphid, and thrips.": "সাদা মাছি, জাব পোকা ও থ্রিপসের মতো বাহক পোকা নিয়ন্ত্রণ করুন।",
-  "Use resistant varieties, clean seedlings, and yellow sticky traps.": "প্রতিরোধী জাত, পরিষ্কার চারা ও হলুদ স্টিকি ফাঁদ ব্যবহার করুন।",
-  "Test soil before fertilizer correction.": "সার দিয়ে ঘাটতি পূরণের আগে মাটি পরীক্ষা করুন।",
-  "Apply balanced NPK with compost.": "কম্পোস্টসহ সুষম NPK সার দিন।",
-  "Use micronutrient spray if deficiency is confirmed.": "ঘাটতি নিশ্চিত হলে অণুপুষ্টি স্প্রে করুন।",
-  "Maintain organic matter and avoid unbalanced fertilizer.": "মাটিতে জৈব পদার্থ বজায় রাখুন এবং অসুষম সার এড়িয়ে চলুন।",
-  "Hand-pick larvae where practical and destroy infested leaves/fruits.": "সম্ভব হলে হাতে লার্ভা ধরে ফেলুন এবং আক্রান্ত পাতা/ফল নষ্ট করুন।",
-  "Use pheromone or light traps for monitoring.": "পর্যবেক্ষণের জন্য ফেরোমন বা আলোর ফাঁদ ব্যবহার করুন।",
-  "Apply Bt, spinosad, or emamectin benzoate only above threshold.": "ক্ষতির সীমা অতিক্রম করলেই কেবল Bt, স্পিনোস্যাড বা ইমামেকটিন বেনজোয়েট ব্যবহার করুন।",
-  "Scout weekly and rotate insecticide groups.": "প্রতি সপ্তাহে জমি পর্যবেক্ষণ করুন এবং কীটনাশকের গ্রুপ পাল্টে ব্যবহার করুন।",
-  "Use yellow/blue sticky traps based on pest type.": "পোকার ধরন অনুযায়ী হলুদ/নীল স্টিকি ফাঁদ ব্যবহার করুন।",
-  "Spray neem oil or insecticidal soap at early stage.": "প্রাথমিক অবস্থায় নিম তেল বা কীটনাশক সাবান স্প্রে করুন।",
-  "Use selective pesticide such as abamectin, spinosad, or buprofezin after identification.": "পোকা শনাক্তের পর অ্যাবামেকটিন, স্পিনোস্যাড বা বুপ্রোফেজিনের মতো নির্বাচিত কীটনাশক ব্যবহার করুন।",
-  "Keep weeds controlled and avoid unnecessary broad-spectrum pesticide.": "আগাছা নিয়ন্ত্রণে রাখুন এবং অপ্রয়োজনে ব্যাপক-কার্যকর কীটনাশক এড়িয়ে চলুন।"
-};
-
-// Bangla lookup that also understands the keyword-scanner names
-// ("Ufra disease", "Tungro virus", "Bakanae disease" ...) and ignores case.
-const PADDY_BN_LOWER = Object.fromEntries(
-  Object.entries(PADDY_BN).map(([key, value]) => [key.toLowerCase(), value])
-);
-
-const PADDY_BN_ALIAS = {
-  "ufra disease": "ufra",
-  "tungro virus": "rice tungro",
-  "bakanae disease": "bakanae (foot rot)",
-  "bakanae": "bakanae (foot rot)"
-};
-
-function paddyBn(issue) {
-  const key = String(issue || "").trim().toLowerCase();
-  return PADDY_BN_LOWER[PADDY_BN_ALIAS[key] || key] || null;
-}
-
-function bnLine(text) {
-  return LINE_BN[text] || text;
-}
 
 const SCAN_DISCLAIMER_BN =
   "ছবি স্ক্যানার একটি মাঠ-সহায়ক প্রোটোটাইপ। রাসায়নিক ব্যবহারের আগে স্থানীয় কৃষি কর্মকর্তার সাথে নিশ্চিত হন এবং সবসময় পণ্যের লেবেলে দেওয়া মাত্রা অনুসরণ করুন।";
@@ -1917,7 +1626,7 @@ function bnAdviceLine(line) {
 function bnIssue(issue) {
   if (!isBn()) return issue;
   return (
-    (paddyBn(issue) && paddyBn(issue).issue) ||
+    (PADDY_BN[issue] && PADDY_BN[issue].issue) ||
     ISSUE_BN[issue] ||
     DISEASE_BN_LOWER[String(issue).toLowerCase()] ||
     issue
@@ -1931,21 +1640,18 @@ function bnSeverity(severity) {
 
 function bnTreatment(issue, list) {
   if (!isBn()) return list || [];
-  const paddy = paddyBn(issue);
-  if (paddy) return paddy.treatment;
-  return TREATMENT_BN[issue] || (list || []).map(bnLine);
+  if (PADDY_BN[issue]) return PADDY_BN[issue].treatment;
+  return TREATMENT_BN[issue] || list || [];
 }
 
 function bnPrevention(issue, fallback) {
   if (!isBn()) return fallback;
-  const paddy = paddyBn(issue);
-  if (paddy) return paddy.prevention;
-  return PREVENTION_BN[issue] || bnLine(fallback);
+  if (PADDY_BN[issue]) return PADDY_BN[issue].prevention;
+  return PREVENTION_BN[issue] || fallback;
 }
 
 function bnPesticideNote(issue, fallback) {
-  const paddy = paddyBn(issue);
-  if (isBn() && paddy && paddy.pesticide) return paddy.pesticide;
+  if (isBn() && PADDY_BN[issue] && PADDY_BN[issue].pesticide) return PADDY_BN[issue].pesticide;
   return fallback;
 }
 
@@ -2049,7 +1755,7 @@ const ELEMENT_IDS = [
   "authTitle", "authKicker", "authSubmitBtn", "switchText", "switchAuthBtn",
   "authError", "forgotPasswordBtn", "resetFields", "confirmPasswordInput",
   "authRow", "socialRow", "passwordInput", "togglePasswordBtn",
-  "logoutBtn", "dateText", "clockText", "welcomeText",
+  "logoutBtn", "dateText", "welcomeText",
   "sidebarBrandName", "sidebarBrandSub", "profileChipName", "profileChipSub",
   "weatherPill", "metricGrid", "fieldList", "allFieldList", "fieldCount",
   "alertList", "recentList", "scanList", "complaintSummaryList",
@@ -2065,9 +1771,7 @@ const ELEMENT_IDS = [
   "financeForm", "financeSummaryGrid", "financeList",
   "calendarForm", "calendarCropSelect", "calendarResult",
   "contactForm", "hotlineList", "contactList",
-  "subsidyGrid",
-  "scanSearch", "scanCropFilter", "scanBandFilter", "scanSortSelect",
-  "scanResultCount", "scanClearFilters", "scanExportBtn"
+  "subsidyGrid"
 ];
 
 const elements = Object.fromEntries(
@@ -2110,6 +1814,7 @@ function setupEventListeners() {
   });
 
   on(elements.authForm, "submit", submitAuth);
+  on(elements.passwordInput, "input", updatePasswordMeter);
   on(elements.togglePasswordBtn, "click", togglePassword);
   on(elements.logoutBtn, "click", logout);
 
@@ -2125,35 +1830,6 @@ function setupEventListeners() {
 
   // This is the ONLY leaf image preview listener.
   on(elements.leafImageInput, "change", previewLeafImage);
-
-  on(elements.scanSearch, "input", (e) => {
-    state.historyFilters.search = e.target.value;
-    state.historyLimit = 12;
-    renderScanHistory();
-  });
-  on(elements.scanCropFilter, "change", (e) => {
-    state.historyFilters.crop = e.target.value;
-    state.historyLimit = 12;
-    renderScanHistory();
-  });
-  on(elements.scanBandFilter, "change", (e) => {
-    state.historyFilters.band = e.target.value;
-    state.historyLimit = 12;
-    renderScanHistory();
-  });
-  on(elements.scanSortSelect, "change", (e) => {
-    state.historyFilters.sort = e.target.value;
-    renderScanHistory();
-  });
-  on(elements.scanClearFilters, "click", () => {
-    state.historyFilters = { search: "", crop: "", band: "", sort: "new" };
-    state.historyLimit = 12;
-    if (elements.scanSearch) elements.scanSearch.value = "";
-    if (elements.scanBandFilter) elements.scanBandFilter.value = "";
-    if (elements.scanSortSelect) elements.scanSortSelect.value = "new";
-    renderScanHistory();
-  });
-  on(elements.scanExportBtn, "click", exportScansCsv);
 
   on(elements.cropSearchInput, "input", renderCropLibrary);
   on(elements.cropTypeSelect, "change", renderCropLibrary);
@@ -2211,23 +1887,6 @@ function renderDate() {
   ).format(new Date());
 }
 
-// Live clock in the middle of the top bar (follows the selected language).
-let clockTimer = null;
-
-function renderClock() {
-  if (!elements.clockText) return;
-
-  elements.clockText.textContent = new Intl.DateTimeFormat(
-    isBn() ? "bn-BD" : "en-US",
-    { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }
-  ).format(new Date());
-}
-
-function startClock() {
-  renderClock();
-  if (!clockTimer) clockTimer = setInterval(renderClock, 1000);
-}
-
 function applyLanguage(lang) {
   state.lang = translations[lang] ? lang : "en";
 
@@ -2256,7 +1915,6 @@ function applyLanguage(lang) {
   }
 
   renderDate();
-  startClock();
 
   if (state.crops.length) {
     populateCropSelect();
@@ -2364,6 +2022,8 @@ function renderAuthMode() {
   const signup = state.authMode === "signup";
   const reset = state.authMode === "reset";
 
+  elements.authModal?.setAttribute("data-mode", state.authMode);
+
   elements.signupFields?.classList.toggle("hidden", !signup);
   elements.resetFields?.classList.toggle("hidden", !reset);
 
@@ -2436,16 +2096,42 @@ function renderAuthMode() {
 function togglePassword() {
   if (!elements.passwordInput) return;
 
-  const isPassword = elements.passwordInput.type === "password";
+  const show = elements.passwordInput.type === "password";
+  const type = show ? "text" : "password";
 
-  elements.passwordInput.type = isPassword ? "text" : "password";
+  elements.passwordInput.type = type;
+  if (elements.confirmPasswordInput) elements.confirmPasswordInput.type = type;
 
   if (elements.togglePasswordBtn) {
-    elements.togglePasswordBtn.textContent = isPassword ? "\u{1F648}" : "\u{1F441}";
+    elements.togglePasswordBtn.textContent = show ? "\u{1F648}" : "\u{1F441}";
   }
 }
 
 async function submitAuth(event) {
+  event.preventDefault();
+  elements.authSubmitBtn?.classList.add("loading");
+  try {
+    await submitAuthInner(event);
+  } finally {
+    elements.authSubmitBtn?.classList.remove("loading");
+  }
+}
+
+function updatePasswordMeter() {
+  const meter = document.getElementById("pwMeter");
+  const value = elements.passwordInput?.value || "";
+  if (!meter) return;
+
+  let score = 0;
+  if (value.length >= 6) score++;
+  if (value.length >= 10) score++;
+  if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
+  if (/\d/.test(value) && /[^A-Za-z0-9]/.test(value)) score++;
+
+  meter.dataset.level = value ? String(Math.max(1, score)) : "0";
+}
+
+async function submitAuthInner(event) {
   event.preventDefault();
 
   setAuthMessage("");
@@ -3472,96 +3158,20 @@ function renderScanStats(scans) {
   ].join("");
 }
 
-function getVisibleScans() {
-  const f = state.historyFilters;
-  const q = f.search.trim().toLowerCase();
-
-  const list = (state.scanHistory || []).filter((s) => {
-    if (f.crop && String(s.crop || "").toLowerCase() !== f.crop) return false;
-    if (f.band && confBand(clampConf(s.confidence), s.lowConfidence) !== f.band) return false;
-
-    if (q) {
-      const hay = [
-        s.issue,
-        safeBn(() => bnIssue(s.issue), s.issue),
-        s.crop,
-        bnName(s.crop),
-        s.notes
-      ].join(" ").toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-
-  const time = (s) => new Date(s.createdAt).getTime();
-  const sorters = {
-    new: (a, b) => time(b) - time(a),
-    old: (a, b) => time(a) - time(b),
-    high: (a, b) => clampConf(b.confidence) - clampConf(a.confidence),
-    low: (a, b) => clampConf(a.confidence) - clampConf(b.confidence)
-  };
-
-  return list.sort(sorters[f.sort] || sorters.new);
-}
-
-// Rebuild the crop dropdown from the crops that actually appear in history.
-function syncScanCropFilter() {
-  const select = elements.scanCropFilter;
-  if (!select) return;
-
-  const crops = [...new Set((state.scanHistory || []).map((s) => String(s.crop || "").toLowerCase()).filter(Boolean))].sort();
-
-  select.innerHTML =
-    `<option value="">${escapeHtml(t("filterAllCrops"))}</option>` +
-    crops.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(bnName(c))}</option>`).join("");
-
-  if (!crops.includes(state.historyFilters.crop)) state.historyFilters.crop = "";
-  select.value = state.historyFilters.crop;
-}
-
 function renderScanHistory() {
   if (!elements.scanHistoryList) return;
-  const all = state.scanHistory || [];
+  const scans = state.scanHistory || [];
 
-  if (elements.scanHistoryCount) elements.scanHistoryCount.textContent = String(all.length);
+  if (elements.scanHistoryCount) elements.scanHistoryCount.textContent = String(scans.length);
 
-  renderScanStats(all);
-  syncScanCropFilter();
+  renderScanStats(scans);
 
-  const visible = getVisibleScans();
-  const shown = visible.slice(0, state.historyLimit);
-
-  if (elements.scanResultCount) {
-    elements.scanResultCount.textContent = all.length
-      ? `${t("showingWord")} ${shown.length} ${t("ofWord")} ${visible.length}`
-      : "";
-  }
-
-  const f = state.historyFilters;
-  const hasFilter = Boolean(f.search || f.crop || f.band || f.sort !== "new");
-  elements.scanClearFilters?.classList.toggle("hidden", !hasFilter);
-  elements.scanExportBtn?.classList.toggle("hidden", !all.length);
-
-  let html;
-  if (!all.length) html = emptyState("noScanHistoryYet");
-  else if (!visible.length) html = emptyState("noScanMatch");
-  else {
-    html = shown.map(renderScanHistoryCard).join("");
-    if (visible.length > shown.length) {
-      html += `<button type="button" class="rp-btn sh-more" data-show-more>${escapeHtml(t("showMore"))} (${visible.length - shown.length})</button>`;
-    }
-  }
-  elements.scanHistoryList.innerHTML = html;
+  elements.scanHistoryList.innerHTML = scans.length
+    ? scans.map(renderScanHistoryCard).join("")
+    : emptyState("noScanHistoryYet");
 
   elements.scanHistoryList.onclick = (event) => {
     if (event.target.closest("[data-delete-id]")) return;
-
-    if (event.target.closest("[data-show-more]")) {
-      state.historyLimit += 12;
-      renderScanHistory();
-      return;
-    }
-
     const card = event.target.closest("[data-open-report]");
     if (card) openScanReport(card.dataset.openReport);
   };
@@ -3578,24 +3188,19 @@ function renderScanHistoryCard(scan) {
   const band = confBand(conf, scan.lowConfidence);
   const issue = safeBn(() => bnIssue(scan.issue), scan.issue);
   const isModel = isAiSource(scan.source);
-  const sevCls = scan.lowConfidence ? "unk" : severityClass(scan.severity);
 
   const photo = scan.imageUrl
     ? `<img src="${escapeHtml(scan.imageUrl)}" alt="Scanned leaf" loading="lazy" />`
     : `<div class="sh-noimg">🍃</div>`;
 
   return `
-    <article class="scan-hist-card band-${band}" tabindex="0" role="button" data-open-report="${escapeHtml(scan.id)}">
+    <article class="scan-hist-card" tabindex="0" role="button" data-open-report="${escapeHtml(scan.id)}">
       <div class="sh-photo">${photo}</div>
       <div class="sh-info">
         <strong>${escapeHtml(issue)}</strong>
         <span>${escapeHtml(bnName(scan.crop))} | ${escapeHtml(fmtScanDate(scan.createdAt))}</span>
-
-        <div class="sh-bar" aria-label="${conf}%"><i style="width:${conf}%"></i></div>
-
         <div class="sh-badges">
           <span class="rp-chip ${band}">${escapeHtml(conf)}% · ${escapeHtml(bandLabel(band))}</span>
-          <span class="sc-sev ${sevCls}">${escapeHtml(bnSeverity(scan.severity))}</span>
           <span class="tag">${escapeHtml(t(isModel ? "modelResultLabel" : "keywordResultLabel"))}</span>
         </div>
         <span class="sh-open">${escapeHtml(t("openReportLink"))} →</span>
@@ -3603,36 +3208,6 @@ function renderScanHistoryCard(scan) {
       ${deleteButton("scans", scan.id)}
     </article>
   `;
-}
-
-function exportScansCsv() {
-  const rows = getVisibleScans();
-  if (!rows.length) return;
-
-  const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const header = ["Date", "Crop", "Issue", "Confidence %", "Severity", "Source", "Symptoms", "Note"];
-
-  const lines = rows.map((s) => [
-    new Date(s.createdAt).toISOString().slice(0, 16).replace("T", " "),
-    s.crop,
-    s.issue,
-    clampConf(s.confidence),
-    s.severity,
-    s.source,
-    (s.symptoms || []).join("; "),
-    s.notes
-  ].map(cell).join(","));
-
-  const csv = "\uFEFF" + [header.map(cell).join(","), ...lines].join("\r\n");
-  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `agrosmart-scans-${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
 }
 
 function openScanReport(id) {
