@@ -2925,3 +2925,23 @@ article.scan-hist-card:hover, article.scan-hist-card:focus-visible { transform: 
 }
 .auth-card .auth-logo img { display: block; width: 100%; max-width: 170px; height: auto; }
 .auth-side-tag { margin-bottom: 22px; text-align: center; }
+
+/* Clickable metric card (Leaf Scans -> Scan History) */
+.metric-link {
+  cursor: pointer;
+  border-color: rgba(33, 146, 92, 0.35);
+}
+
+.metric-link:hover {
+  border-color: var(--green-600);
+  box-shadow: 0 18px 40px rgba(33, 146, 92, 0.2);
+}
+
+.metric-link:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+.metric-link:focus-visible {
+  outline: 2px solid var(--teal-600);
+  outline-offset: 3px;
+}
